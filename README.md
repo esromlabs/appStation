@@ -1,40 +1,27 @@
-Graphlet
-========
-Demo IDE http://nmorse.github.io/graphlet/editor.html?example=Hello%20World
+appStation
+==========
+Demo env http://esromlabs.github.io/appstation/editor.html?example=Turnstyle
 
-This project, the "Graphlet" project, aims to move toward a few ideals that have been missing from the programming landscape.
- * a graph based syntax for flow-control and data-flow (i.e. a network of function, data and I/O elements)
- * visual programming (enabling spatial reasoning on a graph network topology)
- * a portable (environment agnostic) high-level approach to programming
- * event oriented programming expressed as visual syntax (messages follow edges in the graph)
- * visual representation of data structures and transformation vectors (eg. a state machine or linked list)
+appStation, aims to make the use of Finite State Machines (FSMs) easier to use for several programming tasks.
+ * a visual graph based editor lets you see the states and transitions in any 2D layout (multiple views on the same graph)
+ * you can create and edit any properies of a state
+ * allows hierarchical state (states can have a parent that provides a base set of properties)
+ * import and export your FSM for use in your FSM interpreter
  
-A Graph Based Syntax
+A Visual Graph Based Editor
 --------------------
->The syntax for this language is based on a few types of nodes and edges in a graph. Nodes represent data storage and/or coded
-processes. Edges either "get", or "set" data, or send messages to and from I/O nodes, or transfer the flow
-of control to other nodes.
+>The syntax for an FSM is made of states and transition. States represent a resting state where properties are static and only a transition can change them. Transitions move the current state of the FSM interpretor to a new state.
 
-In the Graphlet environment this graph of nodes and edges is the source code. Execution is interpreted using a "event-emitter pattern"
-using a message queue to manage the flow of an application. Client browsers, servers and embedded controllers can all run
-these Graphlet flow-control-graphs.
+>You will not find an "IF" or "WHILE" control structure in an FSM. The traversal from state to state is determined by the topology of the graph. Conditionals and loops are easy to make by branching or cyclical transitions 
 
-The flow of control is entirely determined by the topology of nodes and edges.
->You will not find an "IF" or "WHILE" control structure in Graphlet. All flow control is determined by the topology of the graph that you create.
-
-All Access to data is clearly shown by the (data nodes) connectivity (via edges) in the Graphlet Graph structure.
-This visual approach enables sharing code, and code inspection (by graph analysis, or visually).
->If you need to understand what are all the ways that some datum or IO element is read from or written to, it is plainly represented by adjacency.
-
-Code Visualization
+FSA Visualization
 ------------------
-Central to the Graphlet project is the ability to easily visualize, edit, share and debug code (rendered as a graph).
-A survey of available graph editor applications revealed a lack of web based tools that could be integrated into this graph based
-programming environment. Several rendering libraries have been explored, and currently effort is being invested into integrating
-Cytoscape.js into the Graphlet environment. Modularity is also a focus of the design, so that alternate graph rendering options could be supported
+Central to the appStation project is the ability to easily visualize, edit, share and debug FSMs (rendered as a graphs).
+A survey of available graph editor applications revealed a lack of web based tools that could be integrated into this pattern of programming. Several rendering libraries have been explored, and currently effort is being invested into integrating
+Cytoscape.js into the appStation environment. Modularity is also a focus of the design, so that alternate graph rendering options could be supported
 in the future.
 
-Cytoscape.js is used to facilitate graph visualization, by providing a view into Graphlet flow-control-graphs' the linking of data and process are presented in a high cognitive-bandwidth format.
+Cytoscape.js is used to facilitate graph visualization, by providing a view into FSMs. The goal is to present them in a high cognitive-bandwidth format.
 
 A Portable Approach
 -------------------
