@@ -4,9 +4,9 @@
   "properties": {
     "graph": {
       "type": "string",
-      "description": "First and Last name",
+      "description": "",
       "minLength": 4,
-      "default": "Jeremy Dorn"
+      "default": ""
     },
     "nodes": {
 					"type": "array",
