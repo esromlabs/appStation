@@ -1,16 +1,20 @@
 appStation
 ==========
+appStation, aims to make state machines easier to use in your applications.
+
 Demo env http://esromlabs.github.io/appstation/editor.html?example=Turnstyle
 
-appStation, aims to make the use of Finite State Machines (FSMs) easier to use for several programming tasks.
- * a visual graph based editor lets you see the states and transitions in any 2D layout (multiple views on the same graph)
- * you can create and edit any properies of a state
- * allows hierarchical state (states can have a parent that provides a base set of properties)
- * import and export your FSM for use in your FSM interpreter
- 
 A Visual Graph Based Editor
 --------------------
->The syntax for an FSM is made of states and transition. States represent a resting state where properties are static and only a transition can change them. Transitions move the current state of the FSM interpretor to a new state.
+ * a visual editor lets you see the states and transitions in any layout (with multiple views)
+ * you can create and edit properies of the states in your machine
+ * allows hierarchical state (states can have a parent that provides a base set of properties)
+ * import and export your FSM for use in a state machine interpreter
+ 
+What is a state machine and what is it good for?
+--------------------
+>A state machine is made of states and transition. States represent a resting state where properties are static and only a transition can change them. Transitions move the current state of the state machine interpretor to a new state.
+State Machines are 
 
 >You will not find an "IF" or "WHILE" control structure in an FSM. The traversal from state to state is determined by the topology of the graph. Conditionals and loops are easy to make by branching or cyclical transitions 
 
