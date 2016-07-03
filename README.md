@@ -16,7 +16,7 @@ What is a state machine and what is it good for?
 >A state machine is made of states and transition. States represent a resting state where properties are static and only a transition can change them. Transitions move the current state of the state machine interpretor to a new state.
 State Machines are 
 
->You will not find an "IF" or "WHILE" control structure in an FSM. The traversal from state to state is determined by the topology of the graph. Conditionals and loops are easy to make by branching or cyclical transitions 
+>There are no "IF" or "WHILE" control structure in an FSM. The traversal from state to state is determined by transitions. Conditionals and loops are made by contructing branching or cyclical transitions. 
 
 FSA Visualization
 ------------------
@@ -25,5 +25,5 @@ A survey of available graph editor applications revealed a lack of web based too
 Cytoscape.js into the appStation environment. Modularity is also a focus of the design, so that alternate graph rendering options could be supported
 in the future.
 
-Cytoscape.js is used to facilitate graph visualization, by providing a view into FSMs. The goal is to present them in a high cognitive-bandwidth format.
+Cytoscape.js is used to facilitate graph visualization. The goal is to present State Machines in a high cognitive-bandwidth format that combines graphics and text into diagrams that convey the structure and meaning of the FSM graph.
 

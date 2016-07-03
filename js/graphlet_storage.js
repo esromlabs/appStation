@@ -86,7 +86,9 @@ $(function() {
       var g = get_current_cyto_graph();
       var json = export_graph_json(g);
       $('#graph_out>pre.graphlet_src').text( export_graph_json(g) );
-      $('#graph_out>pre.export').text(JSON.stringify(graphlet2statemachine.process(JSON.parse(json))));
+      $('#graph_out>pre.export').text(
+        destring_functions(JSON.stringify(
+          graphlet2statemachine.process(JSON.parse(json)))));
     });
     //$('#load_from_text').off("click");
     $('#load_from_text').on("click", function() {
@@ -390,6 +392,36 @@ $(function() {
     $('#graph_input_name_n2').data("source", request_local_storage_names("hb_graphs"));
 
 });
+
+// destring_functions removes the "" around a function that 
+// has been processed as a string (in JSON format)
+function destring_functions(in_str) {
+  var out = '';
+  //out = in_str.replace(/\"function\s?\(\s?\)\s?\{(*.)\)}\"/g, "function() {"+$1+"}");
+  //return out;
+  
+  //var temp = 0;
+  //var i1 = 0;
+  //var i2 = 0;
+  //while (in_str.length) {
+  //  temp = in_str.indexOf('"function');
+  //  if (temp >= 0) {
+  //    i2 = temp;
+  //    out += in_str.slice(i1, i2);
+  //    
+  //    i1 = i2 + 1;  // skip the "
+  //    i2 = in_str.indexOf('}"') + 1;
+  //    out += in_str.slice(i1, i2);
+  //    i1 = i2;
+  //  }
+  //  else {
+  //    out += in_str.slice(i1);
+  //  }
+  //}
+  //return out;
+  
+  return in_str;
+}
 
 // Local Storage functions.
 // given the argument (group === 'examples') the preloaded examples are returned.
