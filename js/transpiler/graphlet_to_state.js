@@ -32,7 +32,7 @@
         var transition_edges = gq.using(g).find({"element":"edge", "from":o.id}).edges();
         trans[o.name] = make_transitions(transition_edges);
       });
-      return {"states":states, "trans":trans, "current_state_name":current_state_name};
+      return {"states":states, "trans":trans, "current_state_name":current_state_name, "views": g.views};
     },
     "reverse": function (sm) {
       var out_graph = {nodes:[], edges:[]};

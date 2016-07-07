@@ -176,6 +176,12 @@
 		var g_desig = graph_designator || {graph: graph.graph.name, view_index: 0};
 		var active_view_index = g_desig.view_index || 0;
 
+		if (graph && graph.graph) {
+			g_aux.graph = graph.graph;
+			g_aux.active_view_index = active_view_index;
+			g_aux.views = graph.views;
+			g_template = graph.graph.template;
+		}
 		$.each(raw_nodes, function(i, o) {
 			new_o = {"data":{}};
 			
