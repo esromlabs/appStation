@@ -186,8 +186,8 @@
 			new_o = {"data":{}};
 			
 			new_o.data.properties = o;
-			new_o.data.name = i;
-			new_o.data.id = "n"+i;
+			//new_o.data.name = i;
+			new_o.data.id = i;
 			//new_o.name = i;
 			//new_o.id = "n"+i;
 			demoNodes.push(new_o);
