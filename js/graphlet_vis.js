@@ -199,8 +199,8 @@
   		  
   			name = j;
   			id = "e"+i+j;
-  			source = "n"+i;
-  			target = "n"+o;
+  			source = i;
+  			target = o;
   			new_o = {"data":{"id":id, "name": name, "source": source, "target": target, "edge_type": "flo", "weight": 20}};
   			demoEdges.push(new_o);
   		});
