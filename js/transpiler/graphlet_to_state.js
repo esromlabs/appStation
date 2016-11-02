@@ -4,15 +4,15 @@
   var make_transitions = function(edges) {
     var trans = {};
     $.each(edges, function(i, o) {
-      if (o[4] && o[4].indexOf('function ($scope) {') === 0) {
-        trans[o[3]] = o[4]; //eval(o[4]);
+      var out_t = {"to":o[1]};
+      if (!trans[o[3]]) {
+        trans[o[3]] = [];
       }
-      else {
-        trans[o[3]] = get_to_node(o);
-      }
+      if (o[4]) { out_t.guard = "function () { return (" + o[4] + ");}"; }
+      trans[o[3]].push(out_t); //get_to_node(o));
     });
     return trans;
-  };  
+  };
   var get_to_node = function(edge) {
     return gq.using(given_graph).find({"element":"node", "id":edge[1]}).nodes()[0].name;
   };
@@ -49,7 +49,7 @@
 })($, gq);
 
 
-/* example output for use in: 
+/* example output for use in:
  *    https://github.com/CloudEngineWorks/angular-simple-statemachine
 
 {
