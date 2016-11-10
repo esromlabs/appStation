@@ -4,12 +4,12 @@
   var make_transitions = function(edges) {
     var trans = {};
     $.each(edges, function(i, o) {
-      var out_t = {"to":o[1]};
+      var guard = true;
       if (!trans[o[3]]) {
-        trans[o[3]] = [];
+        trans[o[3]] = {};
       }
-      if (o[4]) { out_t.guard = "function () { return (" + o[4] + ");}"; }
-      trans[o[3]].push(out_t); //get_to_node(o));
+      if (o[4]) { guard = "function () { return (" + o[4] + ");}"; }
+      trans[o[3]][o[1]] = guard; //get_to_node(o));
     });
     return trans;
   };
