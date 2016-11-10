@@ -229,20 +229,26 @@
           </ul>
         </div>
         <div id="edit_mode_ui" style="display: none;">
-            <div class="row"><div class="col-md-2"><button id="copy_node" type="button" class="btn btn-default">copy node</button>
-                                                   <button id="add_node" type="button" class="btn btn-default">add node</button></div>
-                             <div class="col-md-2"><button id="add_edge" type="button" class="btn btn-default" data-toggle="button">add edge</button></div>
+            <div class="row">
+              <div class="col-sm-6">
+                <button id="copy_node" type="button" class="btn btn-default">copy node</button>
+                <button id="add_node" type="button" class="btn btn-default">add node</button>
+                <button id="delete_node" type="button" class="btn btn-default">delete node</button>
+              </div>
+              <div class="col-sm-6">
+                <button id="add_edge" type="button" class="btn btn-default" data-toggle="button">add edge</button>
+                <button id="delete_edge" type="button" class="btn btn-default">delete edge</button>
+              </div>
             </div>
-            <div class="row"><div class="col-md-2"><button id="delete_node" type="button" class="btn btn-default">delete node</button></div>
-                             <div class="col-md-2"><button id="delete_edge" type="button" class="btn btn-default">delete edge</button></div>
+            <div>
+              <h4 id="node_input_header">Node data (<span>0</span> Selected)</h4>
+              <div id="node_editor">
+              </div>
             </div>
-            <div><h4 id="node_input_header">Node data (<span>0</span> Selected)</h4>
-                <div id="node_editor">
-                </div>
-            </div>
-            <div><h4 id="edge_input_header">Edge data (<span>0</span> Selected)</h4>
-                <div id="edge_editor">
-                </div>
+            <div>
+              <h4 id="edge_input_header">Edge data (<span>0</span> Selected)</h4>
+              <div id="edge_editor">
+              </div>
             </div>
         </div>
         <div id="run_mode_ui" style="display: none;">
@@ -289,7 +295,7 @@
               <label class="control-label" for="node_input_name_n0">Example State Machines:
               <div class="controls">
                 <select id="graph_input_name_n0">
-                  
+
                 </select>
               </div>
               </label>
@@ -298,14 +304,14 @@
               <label class="control-label" for="node_input_name_n1">Local State Machine Source:
               <div class="controls">
                 <select id="graph_input_name_n1">
-                  
+
                 </select>
               </div>
               </label>
             </div>
           </form>
           <textarea>
-            
+
           </textarea>
           <button id="load_from_text" type="button" class="btn btn-primary">Load from Text</button>
           <button id="load_from_appState" type="button" class="btn btn-primary">Load from appState Machine</button>
