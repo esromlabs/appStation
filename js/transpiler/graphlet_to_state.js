@@ -20,7 +20,7 @@
     return gq.using(given_graph).find({"element":"node", "id":edge[1]}).nodes()[0].name;
   };
   var isaState = function(name) {
-    return gq.using(given_graph).find({"element":"node", "name":name}).nodes()[0].name;
+    return (gq.using(given_graph).find({"element":"node", "name":name}).nodes()[0]);
   };
   graphlet2statemachine = {
     "process": function (g) {
