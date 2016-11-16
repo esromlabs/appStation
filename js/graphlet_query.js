@@ -24,6 +24,10 @@
 						res.nodes.push(o);
 						return false;
 					}
+					if (sel.name && sel.name === o.name) {
+						res.nodes.push(o);
+						return false;
+					}
 					if (sel.type && o[sel.type]) {
 						res.nodes.push(o);
 					}
