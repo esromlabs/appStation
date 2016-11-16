@@ -26,7 +26,7 @@
     "process": function (g) {
       var states ={};
       var trans = {};
-      var views = {};
+      var views = [];
       var current_state_name;
       given_graph = g;
       $.each(g.nodes, function(i, o) {
