@@ -23,17 +23,27 @@
     "process": function (g) {
       var states ={};
       var trans = {};
+      var views = {};
       var current_state_name;
       given_graph = g;
       $.each(g.nodes, function(i, o) {
         states[o.name] = o.properties || {};
-        if (o.start) {
+        if (o.start || o.start_state || o.name === "Start" || o.name === "start" ) {
           current_state_name = o.name;
         }
       });
       $.each(g.nodes, function(i, o) {
         var transition_edges = gq.using(g).find({"element":"edge", "from":o.id}).edges();
         trans[o.name] = make_transitions(transition_edges);
+      });
+      $.each(g.views, function(i, o) {
+        var this_view = {name: o.name, nodes:{}};
+        $.each(o.nodes, function(node_name, v) {
+          if (isaState(node_name)) {
+            this_view.nodes[node_name] = v;
+          }
+        });
+        views.push(this_view);
       });
       // todo: update views so that we use state names and not Ids
       return {"states":states, "trans":trans, "current_state_name":current_state_name,
