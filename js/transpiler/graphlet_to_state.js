@@ -9,11 +9,14 @@
         trans[o[3]] = {};
       }
       if (o[4]) { guard = "function () { return (" + o[4] + ");}"; }
-      trans[o[3]][o[1]] = guard; //get_to_node(o));
+      trans[o[3]][get_to_node_name(o)] = guard; //get_to_node(o));
     });
     return trans;
   };
-  var get_to_node = function(edge) {
+  var get_from_node_name = function(edge) {
+    return gq.using(given_graph).find({"element":"node", "id":edge[0]}).nodes()[0].name;
+  };
+  var get_to_node_name = function(edge) {
     return gq.using(given_graph).find({"element":"node", "id":edge[1]}).nodes()[0].name;
   };
   graphlet2statemachine = {
@@ -32,7 +35,9 @@
         var transition_edges = gq.using(g).find({"element":"edge", "from":o.id}).edges();
         trans[o.name] = make_transitions(transition_edges);
       });
-      return {"states":states, "trans":trans, "current_state_name":current_state_name, "views": g.views};
+      // todo: update views so that we use state names and not Ids
+      return {"states":states, "trans":trans, "current_state_name":current_state_name,
+        "views": g.views};
     },
     "reverse": function (sm) {
       var out_graph = {nodes:[], edges:[]};
