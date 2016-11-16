@@ -19,6 +19,9 @@
   var get_to_node_name = function(edge) {
     return gq.using(given_graph).find({"element":"node", "id":edge[1]}).nodes()[0].name;
   };
+  var isaNode = function(name) {
+    return gq.using(given_graph).find({"element":"node", "name":name}).nodes()[0].name;
+  };
   graphlet2statemachine = {
     "process": function (g) {
       var states ={};
@@ -47,7 +50,7 @@
       });
       // todo: update views so that we use state names and not Ids
       return {"states":states, "trans":trans, "current_state_name":current_state_name,
-        "views": g.views};
+        "views": views};
     },
     "reverse": function (sm) {
       var out_graph = {nodes:[], edges:[]};
