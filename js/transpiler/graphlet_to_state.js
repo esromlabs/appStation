@@ -31,6 +31,9 @@
       given_graph = g;
       $.each(g.nodes, function(i, o) {
         states[o.name] = o.properties || {};
+        if (o.onEnterState) {
+           states[o.name].onEnterState = "function () {" + o.onEnterState + "}";
+        }
         if (o.start || o.start_state || o.name === "Start" || o.name === "start" ) {
           current_state_name = o.name;
         }
