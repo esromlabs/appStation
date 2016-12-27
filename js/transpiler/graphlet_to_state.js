@@ -53,7 +53,7 @@
       });
       // todo: update views so that we use state names and not Ids
       return {"states":states, "trans":trans, "current_state_name":current_state_name,
-        "views": views};
+        "views": views, "fsm":{"version":"0.3.0}};
     },
     "reverse": function (sm) {
       var out_graph = {nodes:[], edges:[]};
