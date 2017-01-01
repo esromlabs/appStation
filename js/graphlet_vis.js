@@ -490,6 +490,13 @@
 		});
 		$('#add_node').off("click");
 		$('#add_node').on("click", function() {
+			if (!g) {
+				load_cy_graph([]);
+				setTimeout(function() {
+					$('#add_node').trigger("click");
+				}, 50);
+				return;
+			}
 			//alert(g.nodes().length);
 			var ns = g.add({"nodes":[ {"data":{"view":{"position":{"x":80,"y":60}}}} ]});
 			var d = ns[0].data();
