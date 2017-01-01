@@ -184,7 +184,7 @@
 		}
 		$.each(raw_nodes, function(i, o) {
 			new_o = {"data":{}};
-			
+
 			new_o.data.properties = o;
 			new_o.data.name = i;
 			new_o.data.id = i;
@@ -194,9 +194,9 @@
 		});
 		demoNodes.reverse();
 		$.each(raw_edges, function(i, t) {
-		  
+
   		$.each(t, function(j, o) {
-  		  
+
   			name = j;
   			id = "e"+i+j;
   			source = i;
@@ -209,12 +209,20 @@
     // ick not sure if this needed
 		//g_aux.graph = {name:'test'};
 
+		var importviews = [];
+		$.each(graph.views, function(i, v) {
+		 	if ( ! v.edges ) {
+			 	graph.views[i].edges = {};
+		 	}
+			importviews.push(graph.views[i]);
+		});
 
 		// return in a format suitable for loading into cytoscape.js
 		return {
       graph: {name: "test"},
 		  nodes: demoNodes,
-		  edges: demoEdges
+		  edges: demoEdges,
+			views: importviews
 		};
 	};
 
@@ -467,7 +475,7 @@
 			//alert(g.nodes().length);
 		  	var eles = g.elements("node:selected");
 		  	var copy, wrapper, cp_json, ns, pos;
-			
+
 			cp_json = eles.json();
 			copy = $.extend(true, {}, cp_json);
 			delete copy.data.id;

@@ -46,9 +46,10 @@
       });
       $.each(g.views, function(i, o) {
         var this_view = {name: o.name, nodes:{}};
-        $.each(o.nodes, function(node_name, v) {
-          if (isaState(node_name)) {
-            this_view.nodes[node_name] = v;
+        $.each(o.nodes, function(node_id, v) {
+          var node = isaState(node_id);
+          if (node) {
+            this_view.nodes[node.name] = v;
           }
         });
         views.push(this_view);
