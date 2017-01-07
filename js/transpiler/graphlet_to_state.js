@@ -71,24 +71,35 @@
   };
   graphlet2c_code = {
     "process": function (g) {
+      // string processing starting points... (could be made into templates)
       var preamble = "// state machine vars and methods\n"
       var states_enum   = "typedef enum { ";
       var states_enum2  = " } State;\n";
       var signal_enum   = "typedef enum { ";
       var signal_enum2  = " } Signal;\n";
       var declare_state = "State state;\n";
-      var preinit_state = "  // setup pre-init state\n  state = (State)-1;\n";
-      var onTick_func_1 = "  // onTick function\n      switch (state) {\n";
-      var onTick_func_2 = "}\n";
-      var onEnterState_func_1 = "  // onEnterState function\n      switch (state) {\n";
-      var onEnterState_func_2 = "}\n";
-      var state_trans_1 = "  // process the state transition \n    switch (state) {\n";
-      var state_trans_2 = "    }\n";
+      var preinit_state = "// setup pre-init state\n";
+      preinit_state += 'void setup_pre_init_state() { state = (State)-1; }\n';
+      var onTick_func_1 = "// onTick processor function\n";
+      onTick_func_1 += 'void onTick_processor() {\n';
+      onTick_func_1 += '  switch (state) {\n';
+      var onTick_func_2 = "  }\n}\n\n";
+      var onEnterState_func_1 = "  // onEnterState processor function\n";
+      onEnterState_func_1 += 'void onEnterState_processor() {\n';
+      onEnterState_func_1 += '  switch (state) {\n';
+      var onEnterState_func_2 = "  }\n}\n\n";
+      var state_trans_1 = "  // process the state transition\n";
+      state_trans_1 += 'int state_trans_processor(int state, int sig, int sig_data) {\n';
+      state_trans_1 += '  switch (state) {\n';
+      var state_trans_2 = "  }\n}\n\n";
 
       var trans_names = [];
       var state_names = [];
       $.each(g.edges, function(i, e) {
-        trans_names.push(e[3]);
+        var edge_name = e[3];
+        if (trans_names.indexOf(edge_name) === -1) {
+          trans_names.push(edge_name);
+        }
       });
       signal_enum += trans_names.join(', ') + signal_enum2;
       $.each(g.nodes, function(i, o) {
@@ -108,14 +119,57 @@
       onEnterState_func_1 += onEnterState_func_2;
 
       $.each(g.nodes, function(ni, o) {
+        var unique_out_signal_names = [];
+        var consolidated_signals = [];
         var trans = gq.using(g).find({"element":"edge", "from":o.id}).edges();
         state_trans_1 += "      case " + o.name + " :\n";
-        state_trans_1 += "        switch (this_event.sig) {\n";
+        state_trans_1 += "        switch (sig) {\n";
+
         $.each(trans, function(ti, t) {
-          var trans_name = t[3];
+          var trans_sig = t[3];
+          if (unique_out_signal_names.indexOf(trans_sig) === -1) {
+            unique_out_signal_names.push(trans_sig);
+          }
+        });
+
+        $.each(trans, function(ti, t) {
+          var trans_sig = t[3];
+          var consol_index = unique_out_signal_names.indexOf(trans_sig);
           var to_state = get_to_node_name(t);
-          state_trans_1 += "          case " + trans_name + " :\n";
-          state_trans_1 += "            state = " + to_state + "\n";
+          if (!consolidated_signals[consol_index]) {
+            consolidated_signals[consol_index] = {"sig": trans_sig,"out_edges": []};
+          }
+          consolidated_signals[consol_index].out_edges.push({"guard":t[4], "to_state":to_state});
+        });
+        $.each(consolidated_signals, function(ti, t) {
+          var trans_signal = t.sig;
+          var default_trans;
+          var elsetro = '';
+          state_trans_1 += "          case " + trans_signal + " :\n";
+          $.each(t.out_edges, function(ei, e) {
+            if (!e.guard) {
+              default_trans = e;
+            }
+            else {
+              state_trans_1 += "                  // evaluate guard expression\n";
+              state_trans_1 += elsetro + '            if(' + e.guard + ') {\n';
+              state_trans_1 += "                state = " + e.to_state + ";\n";
+              state_trans_1 += "              }\n";
+              elsetro =        '              else ';
+            }
+
+          });
+          if (default_trans) {
+            if (elsetro) {
+              state_trans_1 += elsetro + '{\n';
+              state_trans_1 += "                state = " + default_trans.to_state + ";\n";
+              state_trans_1 += '            }\n';
+            }
+            else {
+              state_trans_1 += "            state = " + default_trans.to_state + ";\n";
+
+            }
+          }
           state_trans_1 += "          break;\n";
         });
         state_trans_1 += "        }\n";

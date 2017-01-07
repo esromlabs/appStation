@@ -5,15 +5,35 @@
 //#define DEBUG_STATE
 //#define DEBUG_EVENTS
 
+// neopixel display
+#include <Adafruit_NeoPixel.h>
+//#include <avr/power.h>
 #include "view.h"
 
-// state machine vars and methods
-typedef enum {start, whos_who, init_game, pick_player, phase_1, inc_player, dec_non_player, phase_2, inc_non_player, dec_player, blank} State;
-typedef enum {btn_down, btn_up, done, times_up} Signal;
+// timer utility
+unsigned long timer = 0;
+void set_timer(unsigned long timer_milli) {
+  timer = millis() + timer_milli;
+}
+void random_player() {}
+int current_player = -1;
 
+#include "app_state.h"
 #include "signal_queue.h"
 
-State state = (State)-1;
+void check_timer() {
+  if (timer != 0 && timer < millis()) {
+    struct Signal_item s;
+    s.sig = times_up;
+    s.data = 0;
+    if (enqueue(times_up, 0, false, false)) {
+      timer = 0;
+    }
+  }
+}
+
+
+
 void setup() {
   // initialize inputs
   pinMode(2, INPUT_PULLUP);
@@ -25,8 +45,8 @@ void setup() {
   Serial.begin(19200);
 #endif
 
-  // init the state machine
-  state = (State)-1;
+  // initialize the state machine
+  setup_pre_init_state();
 
   pixels.begin(); // This initializes the NeoPixel library.
 }
@@ -59,21 +79,6 @@ void listen_inputs() {
   btn7_previous = msg_input(btn7_previous, 7);
 }
 
-// timer utility
-unsigned long timer = 0;
-void set_timer(unsigned long timer_milli) {
-  timer = millis() + timer_milli;
-}
-void check_timer() {
-  if (timer != 0 && timer < millis()) {
-    struct Signal_item s;
-    s.sig = times_up;
-    s.data = 0;
-    if (enqueue(times_up, 0, false, false)) {
-      timer = 0;
-    }
-  }
-}
 
 void set_players() {
   // read all the button states and record which player have their button down.
@@ -88,11 +93,12 @@ void loop () {
   check_timer();
 
   // onTick function
-  switch (state) {
-    case whos_who :
-      display(animate_swirl);
-    break;
-  }
+  onTick_processor();
+//  switch (state) {
+//    case whos_who :
+//      display(animate_swirl);
+//    break;
+//  }
 
   while(queue_size() > 0) {
     struct Signal_item this_event = dequeue();
@@ -108,54 +114,12 @@ void loop () {
     State from_state = state;
 
     // see if this signal causes a transitions in the state machine
-    switch (state) {
-      case start :
-        switch (this_event.sig) {
-          case btn_down :
-            state = whos_who;
-          break;
-        }
-      break;
-      case whos_who :
-        switch (this_event.sig) {
-          case times_up :
-            state = init_game;
-          break;
-          case btn_up :
-            state = start;
-          break;
-        }
-      break;
-      case init_game :
-        switch (this_event.sig) {
-          case times_up :
-            state = start;
-          break;
-        }
-      break;
-      default:
-        state = start;
-#ifdef DEBUG_STATE
-        Serial.println("init to start state!");
-#endif
-    }
+    state = (State)state_trans_processor(state, this_event.sig, this_event.data);
+
     // did the signal cause a state change?
     if (from_state != state) {
-      // since this 'state' is a new state --> run any onEnterState function
-      switch (state) {
-        case start :
-          display(question_mark);
-        break;
-        case whos_who :
-          set_timer(10000);
-        break;
-        case init_game :
-          //set_players();
-          display(home_colors);
-          set_timer(10000);
-          //enqueue(done, -1, false, false);
-        break;
-      }
+      // since this 'state' is a new state --> run any onEnterState functionality.
+      onEnterState_processor();
     }
     else { // nope, no state change occurred
       if (this_event.consume) {
