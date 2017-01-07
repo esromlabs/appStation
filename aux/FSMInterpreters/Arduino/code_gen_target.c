@@ -2,8 +2,8 @@
 #include <stdio.h>
 //#include <string.h>
 
-//#define DEBUG_STATE
-//#define DEBUG_EVENTS
+#define DEBUG_STATE
+#define DEBUG_EVENTS
 
 // neopixel display
 #include <Adafruit_NeoPixel.h>
@@ -15,11 +15,60 @@ unsigned long timer = 0;
 void set_timer(unsigned long timer_milli) {
   timer = millis() + timer_milli;
 }
-void random_player() {}
+
+// inputs (buttons via digital read)
+int btn2_previous = 0;
+int btn3_previous = 0;
+int btn4_previous = 0;
+int btn7_previous = 0;
+// detect a button change and enqueue a message.
+
+void listen_inputs() {
+  btn2_previous = msg_input(btn2_previous, 2);
+  btn3_previous = msg_input(btn3_previous, 3);
+  btn4_previous = msg_input(btn4_previous, 4);
+  btn7_previous = msg_input(btn7_previous, 7);
+}
+
+// game vars and methods
 int current_player = -1;
+void random_player() {
+
+}
+int playing[4] = {0,0,0,0};
+
+void set_players() {
+  // read all the button states and record which player have their button down.
+  // there are the players ready to play.
+
+}
+void signal_done() {
+  send_done();
+}
 
 #include "app_state.h"
 #include "signal_queue.h"
+
+
+
+void send_done() {
+    enqueue(done, -1, false, false);
+}
+// returns the button state 0==disengaged, 1==engaged
+int msg_input(int prev, int pin) {
+  int btn_curr = digitalRead(pin);
+  int btn_prev = prev;
+  if (btn_prev == 0 && btn_curr == LOW) {
+    enqueue(btn_down, pin, false, false);
+    btn_prev = 1;
+  }
+  else if (btn_prev == 1 && btn_curr == HIGH) {
+    enqueue(btn_up, pin, false, false);
+    btn_prev = 0;
+  }
+  return btn_prev;
+}
+
 
 void check_timer() {
   if (timer != 0 && timer < millis()) {
@@ -49,41 +98,6 @@ void setup() {
   setup_pre_init_state();
 
   pixels.begin(); // This initializes the NeoPixel library.
-}
-
-// inputs (buttons via digital read)
-int btn2_previous = 0;
-int btn3_previous = 0;
-int btn4_previous = 0;
-int btn7_previous = 0;
-// detect a button change and enqueue a message.
-// returns the button state 0==disengaged, 1==engaged
-int msg_input(int prev, int pin) {
-  int btn_curr = digitalRead(pin);
-  int btn_prev = prev;
-  if (btn_prev == 0 && btn_curr == LOW) {
-    enqueue(btn_down, pin, false, false);
-    btn_prev = 1;
-  }
-  else if (btn_prev == 1 && btn_curr == HIGH) {
-    enqueue(btn_up, pin, false, false);
-    btn_prev = 0;
-  }
-  return btn_prev;
-}
-
-void listen_inputs() {
-  btn2_previous = msg_input(btn2_previous, 2);
-  btn3_previous = msg_input(btn3_previous, 3);
-  btn4_previous = msg_input(btn4_previous, 4);
-  btn7_previous = msg_input(btn7_previous, 7);
-}
-
-
-void set_players() {
-  // read all the button states and record which player have their button down.
-  // there are the players ready to play.
-
 }
 
 // main arduino loop

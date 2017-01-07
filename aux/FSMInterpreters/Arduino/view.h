@@ -1,6 +1,3 @@
-// neopixel display
-#include <Adafruit_NeoPixel.h>
-//#include <avr/power.h>
 #define NEOPIX_PIN            6
 
 // How many NeoPixels are attached to the Arduino?

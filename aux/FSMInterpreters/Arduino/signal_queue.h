@@ -5,34 +5,6 @@ typedef struct Signal_item {
   boolean consume; // indicates that this signal must be consumed (i.e. will only be removed from the queue if a state transition consumes it)
 } Signal_item;
 
-#ifdef DEBUG_STATE || DEBUG_EVENTS
-char *state_name(int state) {
-  switch (state) {
-    case start : return "start";
-    case whos_who : return "whos_who";
-    case init_game : return "init_game";
-    case pick_player : return "pick_player";
-    case phase_1 : return "phase_1";
-    case inc_player : return "inc_player";
-    case dec_non_player : return "dec_non_player";
-    case phase_2 : return "phase_2";
-    case inc_non_player : return "inc_non_player";
-    case dec_player : return "dec_player";
-    case blank : return "blank";
-  }
-  return "no state";
-}
-char *signal_name(int signal) {
-  switch (signal) {
-    case btn_down : return "btn_down";
-    case btn_up : return "btn_up";
-    case done : return "done";
-    case times_up : return "times_up";
-  }
-  return "!no signal translation!";
-}
-#endif
-
 
 #define Q_LEN 10
 Signal_item q[Q_LEN];

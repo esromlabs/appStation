@@ -91,7 +91,11 @@
       var state_trans_1 = "  // process the state transition\n";
       state_trans_1 += 'int state_trans_processor(int state, int sig, int sig_data) {\n';
       state_trans_1 += '  switch (state) {\n';
-      var state_trans_2 = "  }\n}\n\n";
+      var state_trans_2 = "      default :\n        state = start;\n  }\n  return state;\n}\n\n";
+      var states_debug   = "// debug State by name\n#ifdef DEBUG_STATE || DEBUG_EVENTS\nchar *state_name(int state) {\n  switch (state) {\n";
+      var states_debug2  = '  }\n  return "un-named state";\n}\n#endif\n\n';
+      var signal_debug   = "// debug Signal by name\n#ifdef DEBUG_STATE || DEBUG_EVENTS\nchar *signal_name(int signal) {\n  switch (signal) {\n";
+      var signal_debug2  = '  }\n  return "un-named signal";\n}\n#endif\n\n';
 
       var trans_names = [];
       var state_names = [];
@@ -177,9 +181,20 @@
 
       });
       state_trans_1 += state_trans_2;
-      // todo: update views so that we use state names and not Ids
+
+      $.each(state_names, function(i, s) {
+        states_debug += '   case ' + s + ' :  return "' + s + '";\n';
+      });
+      states_debug += states_debug2;
+
+      $.each(trans_names, function(i, t) {
+        signal_debug += '   case ' + t + ' :  return "' + t + '";\n';
+      });
+      signal_debug += signal_debug2;
+
       return preamble + states_enum + signal_enum + declare_state +
-        preinit_state + onTick_func_1 + onEnterState_func_1 + state_trans_1;
+        preinit_state + onTick_func_1 + onEnterState_func_1 + state_trans_1 +
+        states_debug + signal_debug;
     },
     "reverse": function (sm) {
       var out_graph = {nodes:[], edges:[]};

@@ -29,13 +29,28 @@ void onEnterState_processor() {
       set_timer(3000);
     break;
     case init_game :
-      set_players(); display(home_colors);
+      set_players(); display(home_colors); set_timer(3000);
     break;
     case pick_player :
-      random_player(); set_timer(1500);
+      random_player(); set_timer(1500); signal_done();
     break;
     case phase_1 :
       set_timer(2000);
+    break;
+    case inc_player :
+       signal_done();
+    break;
+    case dec_non_player :
+       signal_done();
+    break;
+    case inc_non_player :
+       signal_done();
+    break;
+    case dec_player :
+       signal_done();
+    break;
+    case blank :
+       signal_done();
     break;
   }
 }
@@ -62,7 +77,7 @@ int state_trans_processor(int state, int sig, int sig_data) {
       break;
       case init_game :
         switch (sig) {
-          case done :
+          case times_up :
             state = pick_player;
           break;
         }
@@ -143,5 +158,41 @@ int state_trans_processor(int state, int sig, int sig_data) {
           break;
         }
       break;
+      default :
+        state = start;
   }
+  return state;
 }
+
+// debug State by name
+#ifdef DEBUG_STATE || DEBUG_EVENTS
+char *state_name(int state) {
+  switch (state) {
+   case start :  return "start";
+   case whos_who :  return "whos_who";
+   case init_game :  return "init_game";
+   case pick_player :  return "pick_player";
+   case phase_1 :  return "phase_1";
+   case inc_player :  return "inc_player";
+   case dec_non_player :  return "dec_non_player";
+   case phase_2 :  return "phase_2";
+   case inc_non_player :  return "inc_non_player";
+   case dec_player :  return "dec_player";
+   case blank :  return "blank";
+  }
+  return "un-named state";
+}
+#endif
+
+// debug Signal by name
+#ifdef DEBUG_STATE || DEBUG_EVENTS
+char *signal_name(int signal) {
+  switch (signal) {
+   case btn_down :  return "btn_down";
+   case times_up :  return "times_up";
+   case btn_up :  return "btn_up";
+   case done :  return "done";
+  }
+  return "un-named signal";
+}
+#endif
