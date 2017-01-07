@@ -69,6 +69,75 @@
       return out_graph;
     }
   };
+  graphlet2c_code = {
+    "process": function (g) {
+      var preamble = "// state machine vars and methods\n"
+      var states_enum   = "typedef enum { ";
+      var states_enum2  = " } State;\n";
+      var signal_enum   = "typedef enum { ";
+      var signal_enum2  = " } Signal;\n";
+      var declare_state = "State state;\n";
+      var preinit_state = "  // setup pre-init state\n  state = (State)-1;\n";
+      var onTick_func_1 = "  // onTick function\n      switch (state) {\n";
+      var onTick_func_2 = "}\n";
+      var onEnterState_func_1 = "  // onEnterState function\n      switch (state) {\n";
+      var onEnterState_func_2 = "}\n";
+      var state_trans_1 = "  // process the state transition \n    switch (state) {\n";
+      var state_trans_2 = "    }\n";
+
+      var trans_names = [];
+      var state_names = [];
+      $.each(g.edges, function(i, e) {
+        trans_names.push(e[3]);
+      });
+      signal_enum += trans_names.join(', ') + signal_enum2;
+      $.each(g.nodes, function(i, o) {
+        state_names.push(o.name);
+        var prop = o.properties || {};
+        if (prop.onTick) {
+           onTick_func_1 += "    case " + o.name + " :\n      " +
+              prop.onTick + "\n    break;\n";
+        }
+        if (prop.onEnterState) {
+           onEnterState_func_1 += "    case " + o.name + " :\n      " +
+              prop.onEnterState + "\n    break;\n";
+        }
+      });
+      states_enum += state_names.join(', ') + states_enum2;
+      onTick_func_1 += onTick_func_2;
+      onEnterState_func_1 += onEnterState_func_2;
+
+      $.each(g.nodes, function(ni, o) {
+        var trans = gq.using(g).find({"element":"edge", "from":o.id}).edges();
+        state_trans_1 += "      case " + o.name + " :\n";
+        state_trans_1 += "        switch (this_event.sig) {\n";
+        $.each(trans, function(ti, t) {
+          var trans_name = t[3];
+          var to_state = get_to_node_name(t);
+          state_trans_1 += "          case " + trans_name + " :\n";
+          state_trans_1 += "            state = " + to_state + "\n";
+          state_trans_1 += "          break;\n";
+        });
+        state_trans_1 += "        }\n";
+        state_trans_1 += "      break;\n";
+
+      });
+      state_trans_1 += state_trans_2;
+      // todo: update views so that we use state names and not Ids
+      return preamble + states_enum + signal_enum + declare_state +
+        preinit_state + onTick_func_1 + onEnterState_func_1 + state_trans_1;
+    },
+    "reverse": function (sm) {
+      var out_graph = {nodes:[], edges:[]};
+      $.each(sm, function(name, state) {
+        out_graph.nodes.push({"name":name});
+        $.each(state.trans, function(key, transition) {
+          out_graph.edges.push({"from":name, "to":transition, "name":key });
+        });
+      });
+      return out_graph;
+    }
+  };
 
 })($, gq);
 

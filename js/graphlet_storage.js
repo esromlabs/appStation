@@ -26,7 +26,7 @@ $(function() {
 		//delete graph.views;
 		return graph;
 	};
-  
+
   $("#nav_load").on('click', function (e) {
       $('#graph_input_name_n0').options(request_local_storage_names("examples"), "blank_first");
       $('#graph_input_name_n1').options(request_local_storage_names("hb_graphs"), "blank_first");
@@ -55,7 +55,7 @@ $(function() {
 			$("#nav_run").parent().removeClass("active");
   });
 
-  
+
   // hook up ctl events
   //$(".ui_mode").off('click');
   $(".ui_mode").on('click', function (e) {
@@ -86,7 +86,7 @@ $(function() {
       var g = get_current_cyto_graph();
       var json = export_graph_json(g);
       //$('#graph_out>pre.graphlet_src').text( export_graph_json(g) );
-      $('#graph_out>pre.export').text(
+      $('#graph_out>textarea.export').text(
         destring_functions(JSON.stringify(
           graphlet2statemachine.process(JSON.parse(json)))));
     });
@@ -388,18 +388,26 @@ $(function() {
 
         $(document).trigger("delete_hbg", [path_name, online_service]);
     });
+    $('#export_c').off("click");
+    $('#export_c').on("click", function(event) {
+      var g = get_current_cyto_graph();
+      var json = export_graph_json(g);
+      //$('#graph_out>pre.graphlet_src').text( export_graph_json(g) );
+      $('#graph_out>textarea.export_c').text(
+          graphlet2c_code.process(JSON.parse(json)));
+    });
 
     $('#graph_input_name_n2').data("source", request_local_storage_names("hb_graphs"));
 
 });
 
-// destring_functions removes the "" around a function that 
+// destring_functions removes the "" around a function that
 // has been processed as a string (in JSON format)
 function destring_functions(in_str) {
   var out = '';
   //out = in_str.replace(/\"function\s?\(\s?\)\s?\{(*.)\)}\"/g, "function() {"+$1+"}");
   //return out;
-  
+
   var temp = 0;
   var i1 = 0;
   var i2 = 0;
@@ -410,7 +418,7 @@ function destring_functions(in_str) {
     if (temp >= 0) {
       i2 = temp;
       out += in_str.slice(i1, i2);
-      
+
       i1 = i2 + 1;  // skip the "
       i2 = in_str.indexOf('}"') + 1;
       out += in_str.slice(i1, i2);
@@ -423,7 +431,7 @@ function destring_functions(in_str) {
     }
   }
   return out;
-  
+
   //return in_str;
 }
 
