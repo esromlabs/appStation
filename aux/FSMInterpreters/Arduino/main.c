@@ -1,4 +1,5 @@
-// generated to target Arduino from a StateFlow
+// main code file for SOGP target Arduino with an appState StateFlow machine.
+
 #include <stdio.h>
 //#include <string.h>
 
@@ -32,16 +33,34 @@ void listen_inputs() {
 
 // game vars and methods
 int current_player = -1;
-void random_player() {
-
-}
 int playing[4] = {0,0,0,0};
-
+char num_players = 0;
+void random_player() {
+  int index = random(0, num_players);
+  current_player = playing[index];
+}
 void set_players() {
   // read all the button states and record which player have their button down.
-  // there are the players ready to play.
-
+  // these are the players ready to play.
+  num_players = 0;
+  if (btn2_previous) {
+    playing[num_players] = 2;
+    num_players++;
+  }
+  if (btn3_previous) {
+    playing[num_players] = 3;
+    num_players++;
+  }
+  if (btn4_previous) {
+    playing[num_players] = 4;
+    num_players++;
+  }
+  if (btn7_previous) {
+    playing[num_players] = 7;
+    num_players++;
+  }
 }
+
 void signal_done() {
   send_done();
 }
@@ -75,7 +94,7 @@ void check_timer() {
     struct Signal_item s;
     s.sig = times_up;
     s.data = 0;
-    if (enqueue(times_up, 0, false, false)) {
+    if (enqueue(times_up, 0, true, false)) {
       timer = 0;
     }
   }
