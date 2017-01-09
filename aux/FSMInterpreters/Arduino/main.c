@@ -43,21 +43,30 @@ void set_players() {
   // read all the button states and record which player have their button down.
   // these are the players ready to play.
   num_players = 0;
+//  display(home_colors);
   if (btn2_previous) {
     playing[num_players] = 2;
     num_players++;
+    uint32_t color = pixels.Color(10, 0, 0);
+    mask(p1_mask, color);
   }
   if (btn3_previous) {
     playing[num_players] = 3;
     num_players++;
+    uint32_t color = pixels.Color(5, 10, 0);
+    mask(p2_mask, color);
   }
   if (btn4_previous) {
     playing[num_players] = 4;
     num_players++;
+    uint32_t color = pixels.Color(0, 5, 10);
+    mask(p3_mask, color);
   }
   if (btn7_previous) {
     playing[num_players] = 7;
     num_players++;
+    uint32_t color = pixels.Color(5, 5, 5);
+    mask(p4_mask, color);
   }
 }
 
@@ -67,8 +76,6 @@ void signal_done() {
 
 #include "app_state.h"
 #include "signal_queue.h"
-
-
 
 void send_done() {
     enqueue(done, -1, false, false);
@@ -157,7 +164,11 @@ void loop () {
     else { // nope, no state change occurred
       if (this_event.consume) {
         // signals marked "consume" that do not cause a transition are put back in the queue.
-        enqueue(this_event.sig, this_event.data, this_event.consume, true);
+#ifdef DEBUG_STATE
+        Serial.println("Alert: re-queuing unconsumed message!");
+#endif
+        // note that consume is set to false so that this re queuing will not loop 
+        enqueue(this_event.sig, this_event.data, false, false);
       }
     }
 

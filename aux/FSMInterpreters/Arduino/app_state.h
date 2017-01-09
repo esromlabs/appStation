@@ -3,7 +3,7 @@
 // state machine vars and methods...
 
 // State enumerated type declaration
-typedef enum { start, whos_who, init_game, pick_player, phase_1, inc_player, dec_non_player, phase_2, inc_non_player, dec_player, blank } State;
+typedef enum { blank, dec_player, inc_non_player, phase_2, dec_non_player, inc_player, phase_1, pick_player, init_game, whos_who, start } State;
 
 // Signal enumerated type declaration
 typedef enum { btn_down, times_up, btn_up, done } Signal;
@@ -22,35 +22,35 @@ void onTick_processor() {
 // onEnterState processor function
 void onEnterState_processor() {
   switch (state) {
-    case start :
-      display(question_mark);
-    break;
-    case whos_who :
-      set_timer(3000);
-    break;
-    case init_game :
-      set_players(); display(home_colors); set_timer(3000);
-    break;
-    case pick_player :
-      random_player(); set_timer(1500); signal_done();
-    break;
-    case phase_1 :
-      set_timer(2000);
-    break;
-    case inc_player :
-       signal_done();
-    break;
-    case dec_non_player :
-       signal_done();
-    break;
-    case inc_non_player :
+    case blank :
        signal_done();
     break;
     case dec_player :
        signal_done();
     break;
-    case blank :
+    case inc_non_player :
        signal_done();
+    break;
+    case dec_non_player :
+       signal_done();
+    break;
+    case inc_player :
+       signal_done();
+    break;
+    case phase_1 :
+      set_timer(2000);
+    break;
+    case pick_player :
+      random_player(); set_timer(1500); signal_done();
+    break;
+    case init_game :
+      set_players(); set_timer(3000);
+    break;
+    case whos_who :
+      set_timer(3000);
+    break;
+    case start :
+      display(question_mark);
     break;
   }
 }
@@ -58,65 +58,24 @@ void onEnterState_processor() {
   // process the state transition
 int state_trans_processor(int state, int sig, int sig_data) {
   switch (state) {
-      case start :
+      case blank :
         switch (sig) {
-          case btn_down :
-            state = whos_who;
-          break;
-        }
-      break;
-      case whos_who :
-        switch (sig) {
-          case times_up :
-            state = init_game;
-          break;
-          case btn_up :
-            state = start;
-          break;
-        }
-      break;
-      case init_game :
-        switch (sig) {
-          case times_up :
+          case done :
             state = pick_player;
           break;
         }
       break;
-      case pick_player :
-        switch (sig) {
-          case done :
-            state = phase_1;
-          break;
-        }
-      break;
-      case phase_1 :
-        switch (sig) {
-          case btn_down :
-                  // evaluate guard expression
-            if(sig_data == current_player) {
-                state = inc_player;
-              }
-                  // evaluate guard expression
-              else             if(sig_data !=  current_player) {
-                state = dec_non_player;
-              }
-          break;
-          case times_up :
-            state = blank;
-          break;
-        }
-      break;
-      case inc_player :
+      case dec_player :
         switch (sig) {
           case done :
             state = phase_2;
           break;
         }
       break;
-      case dec_non_player :
+      case inc_non_player :
         switch (sig) {
           case done :
-            state = phase_1;
+            state = phase_2;
           break;
         }
       break;
@@ -137,24 +96,68 @@ int state_trans_processor(int state, int sig, int sig_data) {
           break;
         }
       break;
-      case inc_non_player :
+      case dec_non_player :
+        switch (sig) {
+          case done :
+            state = phase_1;
+          break;
+        }
+      break;
+      case inc_player :
         switch (sig) {
           case done :
             state = phase_2;
           break;
         }
       break;
-      case dec_player :
+      case phase_1 :
         switch (sig) {
-          case done :
-            state = phase_2;
+          case btn_down :
+                  // evaluate guard expression
+            if(sig_data == current_player) {
+                state = inc_player;
+              }
+                  // evaluate guard expression
+              else             if(sig_data !=  current_player) {
+                state = dec_non_player;
+              }
+          break;
+          case times_up :
+            state = blank;
           break;
         }
       break;
-      case blank :
+      case pick_player :
         switch (sig) {
           case done :
+            state = phase_1;
+          break;
+        }
+      break;
+      case init_game :
+        switch (sig) {
+          case times_up :
             state = pick_player;
+          break;
+        }
+      break;
+      case whos_who :
+        switch (sig) {
+          case times_up :
+            state = init_game;
+          break;
+          case btn_up :
+            state = start;
+          break;
+        }
+      break;
+      case start :
+        switch (sig) {
+          case btn_down :
+            state = whos_who;
+          break;
+          case times_up :
+            state = -1;
           break;
         }
       break;
@@ -168,17 +171,17 @@ int state_trans_processor(int state, int sig, int sig_data) {
 #ifdef DEBUG_STATE || DEBUG_EVENTS
 char *state_name(int state) {
   switch (state) {
-   case start :  return "start";
-   case whos_who :  return "whos_who";
-   case init_game :  return "init_game";
-   case pick_player :  return "pick_player";
-   case phase_1 :  return "phase_1";
-   case inc_player :  return "inc_player";
-   case dec_non_player :  return "dec_non_player";
-   case phase_2 :  return "phase_2";
-   case inc_non_player :  return "inc_non_player";
-   case dec_player :  return "dec_player";
    case blank :  return "blank";
+   case dec_player :  return "dec_player";
+   case inc_non_player :  return "inc_non_player";
+   case phase_2 :  return "phase_2";
+   case dec_non_player :  return "dec_non_player";
+   case inc_player :  return "inc_player";
+   case phase_1 :  return "phase_1";
+   case pick_player :  return "pick_player";
+   case init_game :  return "init_game";
+   case whos_who :  return "whos_who";
+   case start :  return "start";
   }
   return "un-named state";
 }

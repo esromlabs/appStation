@@ -8,9 +8,10 @@
 // example for more information on possible values.
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, NEOPIX_PIN, NEO_GRB + NEO_KHZ800);
 
-typedef enum {question_mark = 0, home_colors, animate_swirl} Patterns;
+typedef enum {question_mark = 0, home_colors, p1_mask, p2_mask, p3_mask, p4_mask,
+              layer1_mask, layer2_mask, layer3_mask, layer4_mask, animate_swirl} Patterns;
 
-unsigned char pix[2][8][8] = {{
+unsigned char pix[3][8][8] = {{
 { 0, 0, 0,42,42, 0, 0, 0},
 { 0, 0,42, 0, 0,42, 0, 0},
 { 0, 0, 0, 0, 0, 42, 0, 0},
@@ -29,6 +30,16 @@ unsigned char pix[2][8][8] = {{
 {0b110000, 0, 0, 0, 0, 0, 0, 0b101010},
 {0b110000, 0, 0, 0, 0, 0, 0, 0b101010},
 {0b111011, 3, 3, 3, 3, 3, 3, 0b101011}
+},
+{
+{0b01111110,0b00000000,0b00000000,0b00000000,0b11111111,0b00000000,0b00000000,0b10000001},
+{0b00111100,0b00000001,0b00000000,0b10000000,0b10000001,0b01111110,0b00000000,0b01000010},
+{0b00011000,0b00000011,0b00000000,0b11000000,0b10000001,0b01000010,0b00111100,0b00100100},
+{0b00000000,0b00000111,0b00000000,0b11100000,0b10000001,0b01000010,0b00100100,0b00011000},
+{0b00000000,0b00000111,0b00000000,0b11100000,0b10000001,0b01000010,0b00100100,0b00011000},
+{0b00000000,0b00000011,0b00011000,0b11000000,0b10000001,0b01000010,0b00111100,0b00100100},
+{0b00000000,0b00000001,0b00111100,0b10000000,0b10000001,0b01111110,0b00000000,0b01000010},
+{0b00000000,0b00000000,0b01111110,0b00000000,0b11111111,0b00000000,0b00000000,0b10000001}
 }};
 int swirl_i = 0;
 
@@ -64,7 +75,7 @@ void display(int p) {
     pixels.setPixelColor(swirl_path[(swirl_i+5)%SWIRL_SIZE], pixels.Color(10, 20, 4));
     pixels.setPixelColor(swirl_path[(swirl_i+6)%SWIRL_SIZE], pixels.Color(4, 8, 2));
   }
-  else {
+  else if (p < p1_mask) {
     unsigned char red_filter = 0b110000;
     unsigned char blu_filter = 0b001100;
     unsigned char gre_filter = 0b000011;
@@ -77,6 +88,25 @@ void display(int p) {
         unsigned char blu = ((pix[p][i][j]&blu_filter)>>blu_shift)*3;
         unsigned char gre = ((pix[p][i][j]&gre_filter)>>gre_shift)*3;
         pixels.setPixelColor(i*8+j, pixels.Color(red, blu, gre));
+      }
+    }
+  }
+  pixels.show();
+}
+void mask(int mask, uint32_t overlay_color) {
+  unsigned char offset = mask - p1_mask;
+  for(int i=0;i<8;i+=1) {
+    unsigned char row = pix[p1_mask][i][offset];
+    for(int j=0;j<8;j+=1) {
+      if ((row >> j) & 1) {
+        if (overlay_color) {
+          pixels.setPixelColor(i*8+j, overlay_color);
+       }
+      }
+      else {
+        if (!overlay_color) {
+          pixels.setPixelColor(i*8+j, pixels.Color(0,0,0));
+        }
       }
     }
   }
