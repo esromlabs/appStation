@@ -53,3 +53,48 @@ struct Signal_item dequeue () {
 int queue_size () {
   return (q_size);
 }
+
+#ifdef DEBUG_QUEUE
+void test_signal_queue() {
+  int failed_tests = 0;
+  delay(3000);
+  Signal_item test;
+  enqueue(btn_down, 5, false, false);
+  if (queue_size() != 1) {
+    // failed test
+    Serial.println("queue_size failed to report 1 after enqueue();");
+    failed_tests++;
+  }
+  enqueue(btn_down, 88, false, false);
+  if (queue_size() != 2) {
+    // failed test
+    Serial.println("queue_size failed to report 2 after second enqueue();");
+    failed_tests++;
+  }
+  test = dequeue();
+  if (queue_size() != 1) {
+    // failed test
+    Serial.println("queue_size failed to report 1 after dequeue();");
+    failed_tests++;
+  }
+  if (test.data != 5) {
+    // failed test
+    Serial.println("dequeue() did not return an item with data == 5");
+    failed_tests++;
+  }
+  test = dequeue();
+  if (queue_size() != 0) {
+    // failed test
+    Serial.println("queue_size failed to report 0 after dequeue();");
+    failed_tests++;
+  }
+  if (test.data != 88) {
+    // failed test
+    Serial.println("dequeue() did not return an item with data == 88");
+    failed_tests++;
+  }
+  if (!failed_tests) {
+    Serial.println("passed tests!");
+  }
+}
+#endif

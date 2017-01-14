@@ -3,8 +3,8 @@
 #include <stdio.h>
 //#include <string.h>
 
-#define DEBUG_STATE
-#define DEBUG_EVENTS
+//#define DEBUG_STATE
+//#define DEBUG_EVENTS
 
 // neopixel display
 #include <Adafruit_NeoPixel.h>
@@ -20,6 +20,8 @@ void set_timer(unsigned long timer_milli) {
 // game vars and methods
 int current_player = -1;
 int playing[4] = {0,0,0,0};
+uint32_t player_color[4] = {0x0A0000,0x050A00,0x00050A,0x080006};
+boolean animate_toggle = true;
 char num_players = 0;
 void random_player() {
   int index = random(0, num_players);
@@ -43,32 +45,52 @@ void set_players() {
   // these are the players ready to play.
   num_players = 0;
 //  display(home_colors);
-  if (is_btn_down(0)) {
-    playing[num_players] = 0;
-    num_players++;
-    uint32_t color = pixels.Color(10, 0, 0);
-    mask(p1_mask, color);
-  }
-  if (is_btn_down(1)) {
-    playing[num_players] = 1;
-    num_players++;
-    uint32_t color = pixels.Color(5, 10, 0);
-    mask(p2_mask, color);
-  }
-  if (is_btn_down(2)) {
-    playing[num_players] = 2;
-    num_players++;
-    uint32_t color = pixels.Color(0, 5, 10);
-    mask(p3_mask, color);
-  }
-  if (is_btn_down(3)) {
-    playing[num_players] = 3;
-    num_players++;
-    uint32_t color = pixels.Color(5, 5, 5);
-    mask(p4_mask, color);
+  for(int i = 0; i < 4; i += 1) {
+    if (is_btn_down(i)) {
+      playing[num_players] = i;
+      num_players++;
+      uint32_t color = player_color[i];
+      mask(p1_mask+i, color);
+    }
   }
 }
 
+void display_black() {
+    uint32_t color = pixels.Color(0, 0, 0);;
+    mask(layer1_mask, color);
+    color = pixels.Color(0, 0, 0);;
+    mask(layer1_mask, color);
+
+}
+
+void display_bait() {
+    uint32_t color = pixels.Color(10, 0, 0);;
+    mask(layer1_mask, color);
+    delay(50);
+    color = pixels.Color(0, 10, 0);;
+    mask(layer2_mask, color);
+    delay(50);
+    color = pixels.Color(0, 0, 10);;
+    mask(layer3_mask, color);
+    delay(50);
+    color = pixels.Color(0, 0, 0);;
+    mask(layer4_mask, color);
+    color = player_color[current_player];
+    mask(layer4_mask, color);
+}
+
+void animate_bait() {
+  uint32_t color;
+  animate_toggle = !animate_toggle;
+  if (animate_toggle) {
+    color = player_color[current_player];
+    mask(layer4_mask, color);
+  }
+  else {
+    uint32_t color = pixels.Color(10, 10, 0);
+    mask(layer4_mask, color);
+  }
+}
 
 void send_done() {
     enqueue(done, -1, false, false);
@@ -180,63 +202,8 @@ void loop () {
   }
   delay(100);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #ifdef DEBUG_QUEUE
-int failed_tests = 0;
-delay(3000);
-Signal_item test;
-enqueue(btn_down, 5, false, false);
-if (queue_size() != 1) {
-  // failed test
-  Serial.println("queue_size failed to report 1 after enqueue();");
-  failed_tests++;
-}
-enqueue(btn_down, 88, false, false);
-if (queue_size() != 2) {
-  // failed test
-  Serial.println("queue_size failed to report 2 after second enqueue();");
-  failed_tests++;
-}
-test = dequeue();
-if (queue_size() != 1) {
-  // failed test
-  Serial.println("queue_size failed to report 1 after dequeue();");
-  failed_tests++;
-}
-if (test.data != 5) {
-  // failed test
-  Serial.println("dequeue() did not return an item with data == 5");
-  failed_tests++;
-}
-test = dequeue();
-if (queue_size() != 0) {
-  // failed test
-  Serial.println("queue_size failed to report 0 after dequeue();");
-  failed_tests++;
-}
-if (test.data != 88) {
-  // failed test
-  Serial.println("dequeue() did not return an item with data == 88");
-  failed_tests++;
-}
-if (!failed_tests) {
-  Serial.println("passed tests!");
-}
+  test_signal_queue();
 #endif
+
 }
