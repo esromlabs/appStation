@@ -8,7 +8,6 @@
 
 // neopixel display
 #include <Adafruit_NeoPixel.h>
-//#include <avr/power.h>
 #include "view.h"
 
 // timer utility
@@ -17,19 +16,6 @@ void set_timer(unsigned long timer_milli) {
   timer = millis() + timer_milli;
 }
 
-// inputs (buttons via digital read)
-int btn2_previous = 0;
-int btn3_previous = 0;
-int btn4_previous = 0;
-int btn7_previous = 0;
-// detect a button change and enqueue a message.
-
-void listen_inputs() {
-  btn2_previous = msg_input(btn2_previous, 2);
-  btn3_previous = msg_input(btn3_previous, 3);
-  btn4_previous = msg_input(btn4_previous, 4);
-  btn7_previous = msg_input(btn7_previous, 7);
-}
 
 // game vars and methods
 int current_player = -1;
@@ -39,36 +25,6 @@ void random_player() {
   int index = random(0, num_players);
   current_player = playing[index];
 }
-void set_players() {
-  // read all the button states and record which player have their button down.
-  // these are the players ready to play.
-  num_players = 0;
-//  display(home_colors);
-  if (btn2_previous) {
-    playing[num_players] = 2;
-    num_players++;
-    uint32_t color = pixels.Color(10, 0, 0);
-    mask(p1_mask, color);
-  }
-  if (btn3_previous) {
-    playing[num_players] = 3;
-    num_players++;
-    uint32_t color = pixels.Color(5, 10, 0);
-    mask(p2_mask, color);
-  }
-  if (btn4_previous) {
-    playing[num_players] = 4;
-    num_players++;
-    uint32_t color = pixels.Color(0, 5, 10);
-    mask(p3_mask, color);
-  }
-  if (btn7_previous) {
-    playing[num_players] = 7;
-    num_players++;
-    uint32_t color = pixels.Color(5, 5, 5);
-    mask(p4_mask, color);
-  }
-}
 
 void signal_done() {
   send_done();
@@ -77,24 +33,46 @@ void signal_done() {
 #include "app_state.h"
 #include "signal_queue.h"
 
+#include <Wire.h>
+#include <Adafruit_MPR121.h>
+#include "input.h"
+
+
+void set_players() {
+  // read all the button states and record which player have their button down.
+  // these are the players ready to play.
+  num_players = 0;
+//  display(home_colors);
+  if (is_btn_down(0)) {
+    playing[num_players] = 0;
+    num_players++;
+    uint32_t color = pixels.Color(10, 0, 0);
+    mask(p1_mask, color);
+  }
+  if (is_btn_down(1)) {
+    playing[num_players] = 1;
+    num_players++;
+    uint32_t color = pixels.Color(5, 10, 0);
+    mask(p2_mask, color);
+  }
+  if (is_btn_down(2)) {
+    playing[num_players] = 2;
+    num_players++;
+    uint32_t color = pixels.Color(0, 5, 10);
+    mask(p3_mask, color);
+  }
+  if (is_btn_down(3)) {
+    playing[num_players] = 3;
+    num_players++;
+    uint32_t color = pixels.Color(5, 5, 5);
+    mask(p4_mask, color);
+  }
+}
+
+
 void send_done() {
     enqueue(done, -1, false, false);
 }
-// returns the button state 0==disengaged, 1==engaged
-int msg_input(int prev, int pin) {
-  int btn_curr = digitalRead(pin);
-  int btn_prev = prev;
-  if (btn_prev == 0 && btn_curr == LOW) {
-    enqueue(btn_down, pin, false, false);
-    btn_prev = 1;
-  }
-  else if (btn_prev == 1 && btn_curr == HIGH) {
-    enqueue(btn_up, pin, false, false);
-    btn_prev = 0;
-  }
-  return btn_prev;
-}
-
 
 void check_timer() {
   if (timer != 0 && timer < millis()) {
@@ -117,13 +95,31 @@ void setup() {
   pinMode(7, INPUT_PULLUP);
 
 #ifdef DEBUG_STATE || DEBUG_EVENTS
-  Serial.begin(19200);
+  Serial.begin(9600);
+
+  while (!Serial) { // needed to keep leonardo/micro from starting too fast!
+    delay(10);
+  }
 #endif
 
   // initialize the state machine
   setup_pre_init_state();
 
   pixels.begin(); // This initializes the NeoPixel library.
+
+  // Capacitive touch init
+  // Default address is 0x5A, if tied to 3.3V its 0x5B
+  // If tied to SDA its 0x5C and if SCL then 0x5D
+  if (!cap.begin(0x5A)) {
+#ifdef DEBUG_STATE || DEBUG_EVENTS
+    Serial.println("MPR121 not found, check wiring?");
+#endif
+//    while (1);
+  }
+#ifdef DEBUG_STATE || DEBUG_EVENTS
+  Serial.println("MPR121 found!");
+#endif
+
 }
 
 // main arduino loop
@@ -167,7 +163,7 @@ void loop () {
 #ifdef DEBUG_STATE
         Serial.println("Alert: re-queuing unconsumed message!");
 #endif
-        // note that consume is set to false so that this re queuing will not loop 
+        // note that consume is set to false so that this re queuing will not loop
         enqueue(this_event.sig, this_event.data, false, false);
       }
     }
