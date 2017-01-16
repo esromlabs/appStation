@@ -52,6 +52,12 @@ int swirl_i = 0;
 // 40 41 42 43 44 45 46 47
 // 48 49 50 51 52 53 54 55
 // 56 57 58 59 60 61 62 63
+byte score_path[4][7] = {
+{ 6, 5, 4, 3, 2, 1, 0},
+{ 8,16,24,32,40,48,56},
+{57,58,59,60,61,62,63},
+{55,47,39,31,23,15, 7}
+};
 #define SWIRL_SIZE 66
 unsigned char swirl_path[SWIRL_SIZE] =
 {0, 1, 2, 3, 4, 5, 6, 7
@@ -101,16 +107,23 @@ void mask(int mask, uint32_t overlay_color) {
     unsigned char row = pix[p1_mask][i][offset];
     for(int j=0;j<8;j+=1) {
       if ((row >> j) & 1) {
-        if (overlay_color) {
           pixels.setPixelColor(i*8+j, overlay_color);
-       }
       }
       else {
         if (!overlay_color) {
-          pixels.setPixelColor(i*8+j, pixels.Color(0,0,0));
+          pixels.setPixelColor(i*8+j, overlay_color);
         }
       }
     }
   }
   pixels.show();
+}
+
+void light_player_point(byte player_index, int i, boolean color_on, uint32_t color) {
+  if (color_on) {
+    pixels.setPixelColor(score_path[player_index][i], color);
+  }
+  else {
+    pixels.setPixelColor(score_path[player_index][i], pixels.Color(0, 0, 0));
+  }
 }

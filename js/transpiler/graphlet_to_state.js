@@ -79,13 +79,13 @@
       var signal_enum2  = " } Signal;\n\n";
       var declare_state = "// global state variable declaration\nState state;\n\n";
       var preinit_state = "// setup pre-init state function\n";
-      preinit_state += 'void setup_pre_init_state() { state = (State)-1; }\n';
+      preinit_state += 'void setup_pre_init_state() { state = (State)-1; send_signal(start); }\n';
       var onTick_func_1 = "// onTick processor function\n";
       onTick_func_1 += 'void onTick_processor() {\n';
       onTick_func_1 += '  switch (state) {\n';
       var onTick_func_2 = "  }\n}\n\n";
       var onEnterState_func_1 = "// onEnterState processor function\n";
-      onEnterState_func_1 += 'void onEnterState_processor() {\n';
+      onEnterState_func_1 += 'void onEnterState_processor(int sig, int sig_data) {\n';
       onEnterState_func_1 += '  switch (state) {\n';
       var onEnterState_func_2 = "  }\n}\n\n";
       var state_trans_1 = "  // process the state transition\n";
