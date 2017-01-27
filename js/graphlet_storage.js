@@ -435,6 +435,38 @@ function destring_functions(in_str) {
   //return in_str;
 }
 
+// enstring_functions adds the "" around a function body so
+// it can be processed as a string (as in JSON.parse)
+function enstring_functions(in_str) {
+  var out = '';
+  out = in_str.replace(/function\s?\(\s?\)\s?\{(*.)\)}/g, '"'+$1+'"');
+
+  //var temp = 0;
+  //var i1 = 0;
+  //var i2 = 0;
+  //while (in_str.length) {
+  //  i1 = 0;
+  //  i2 = 0;
+  //  temp = in_str.indexOf('function');
+  //  if (temp >= 0) {
+  //    i2 = temp;
+  //    out += in_str.slice(i1, i2);
+  //    i1 = i2 + 1;  // skip the "
+  //    i2 = in_str.indexOf('}') + 1;
+  //    out += in_str.slice(i1, i2);
+  //    i1 = i2;
+  //    in_str = in_str.slice(i2+1);
+  //  }
+  //  else {
+  //    out += in_str;
+  //    in_str = [];
+  //  }
+  //}
+  return out;
+
+  //return in_str;
+}
+
 // Local Storage functions.
 // given the argument (group === 'examples') the preloaded examples are returned.
 // otherwise, group is a given name in the localstorage for this browser then any
