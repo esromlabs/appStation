@@ -435,43 +435,45 @@ function destring_functions(in_str) {
   //return in_str;
 }
 
-// enstring_functions adds the "" around a function body so
-// it can be processed as a string (as in JSON.parse)
+// enstring_functions adds the "" around a function body in
+// preparation for processing by JSON.parse
 function enstring_functions(in_str) {
   //var out = '';
   //out = in_str.replace(/function\s?\(\s?\)\s?\{(*.)\)}/g, '"'+$1+'"');
-  var fn_str = 'function() {';
+  var fn_str = 'function()';
   var out = '';
-  var pre = '';
-  var core = '';
-  var post = '';
-  var i1 = 0;
-  var i2 = 0;
-  while (in_str.length) {
-    i1 = 0;
-    i2 = 0;
-    pre = '';
-    core = '';
-    post = '';
-    temp = in_str.indexOf(fn_str);
-    if (temp >= 0) {
-      i2 = temp;
-      i1 = i2 + fn_str.length;  // skip the chars of the template 'fn_str'
-      out += in_str.slice(0, i2); // trim off up to 'function'
-      i1 = i2 + fn_str.length;  // skip the chars of 'function'
-      i2 = in_str.indexOf('}') - 1;
-      out += in_str.slice(i1, i2);
-      i1 = i2;
-      in_str = in_str.slice(i2+1);
-    }
-    else {
-      out += in_str;
-      in_str = [];
-    }
-  }
-  return out;
+  var curly_brackets = 0;
+  var i = fn_index;
+  var temp_i = 0;
+  var first_i;
+  var char_at;
+  var fn_index = in_str.indexOf(fn_str);
+  while (fn_index > 0) {
+    out += in_str.substring(0, fn_index);
+    // find the first curly_brackets
+    temp_i = in_str.indexOf('{');
+    if (temp_i > 0 && temp_i > fn_index) {
+      first_i = temp_i + 1;
+      curly_brackets = 1;
+      while (curly_brackets > 0) {
+        temp_i += 1;
+        char_at = in_str.charAt(temp_i);
+        if (char_at === '}') {
+          curly_brackets -= 1;
+        }
+        if (char_at === '{') {
+          curly_brackets += 1;
+        }
+      }
+      out += in_str.substring(first_i, temp_i);
 
-  //return in_str;
+    }
+    else { out += 'Parse Error in enstring_functions call...'}
+    in_str = in_str.substring(0, temp_i);
+    fn_index = in_str.indexOf(fn_str);
+  }
+  out += in_str;
+  return out;
 }
 
 // Local Storage functions.
