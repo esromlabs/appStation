@@ -79,7 +79,7 @@
       var signal_enum2  = " } Signal;\n\n";
       var declare_state = "// global state variable declaration\nState state;\n\n";
       var preinit_state = "// setup pre-init state function\n";
-      preinit_state += 'void setup_pre_init_state() { state = (State)-1; send_signal(start); }\n';
+      preinit_state += 'void setup_pre_init_state() { state = (State)-1; send_signal(buzz_state_start); }\n';
       var onTick_func_1 = "// onTick processor function\n";
       onTick_func_1 += 'void onTick_processor() {\n';
       onTick_func_1 += '  switch (state) {\n';
@@ -91,7 +91,7 @@
       var state_trans_1 = "  // process the state transition\n";
       state_trans_1 += 'int state_trans_processor(int state, int sig, int sig_data) {\n';
       state_trans_1 += '  switch (state) {\n';
-      var state_trans_2 = "      default :\n        state = start;\n  }\n  return state;\n}\n\n";
+      var state_trans_2 = "      default :\n        state = buzz_state_start;\n  }\n  return state;\n}\n\n";
       var states_debug   = "// debug State by name\n#ifdef DEBUG_STATE || DEBUG_EVENTS\nchar *state_name(int state) {\n  switch (state) {\n";
       var states_debug2  = '  }\n  return "un-named state";\n}\n#endif\n\n';
       var signal_debug   = "// debug Signal by name\n#ifdef DEBUG_STATE || DEBUG_EVENTS\nchar *signal_name(int signal) {\n  switch (signal) {\n";
@@ -110,15 +110,15 @@
         state_names.push(o.name);
         var prop = o.properties || {};
         if (prop.onTick) {
-           onTick_func_1 += "    case " + o.name + " :\n      " +
+           onTick_func_1 += "    case " + 'buzz_state_' + o.name + " :\n      " +
               prop.onTick + "\n    break;\n";
         }
         if (prop.onEnterState) {
-           onEnterState_func_1 += "    case " + o.name + " :\n      " +
+           onEnterState_func_1 += "    case " + 'buzz_state_' + o.name + " :\n      " +
               prop.onEnterState + "\n    break;\n";
         }
       });
-      states_enum += state_names.join(', ') + states_enum2;
+      states_enum += 'buzz_state_' + state_names.join(', buzz_state_') + states_enum2;
       onTick_func_1 += onTick_func_2;
       onEnterState_func_1 += onEnterState_func_2;
 
@@ -126,7 +126,7 @@
         var unique_out_signal_names = [];
         var consolidated_signals = [];
         var trans = gq.using(g).find({"element":"edge", "from":o.id}).edges();
-        state_trans_1 += "      case " + o.name + " :\n";
+        state_trans_1 += "      case " + 'buzz_state_' + o.name + " :\n";
         state_trans_1 += "        switch (sig) {\n";
 
         $.each(trans, function(ti, t) {
@@ -157,7 +157,7 @@
             else {
               state_trans_1 += "                  // evaluate guard expression\n";
               state_trans_1 += elsetro + '            if(' + e.guard + ') {\n';
-              state_trans_1 += "                state = " + e.to_state + ";\n";
+              state_trans_1 += "                state = " + 'buzz_state_' + e.to_state + ";\n";
               state_trans_1 += "              }\n";
               elsetro =        '              else ';
             }
@@ -166,11 +166,11 @@
           if (default_trans) {
             if (elsetro) {
               state_trans_1 += elsetro + '{\n';
-              state_trans_1 += "                state = " + default_trans.to_state + ";\n";
+              state_trans_1 += "                state = " + 'buzz_state_' + default_trans.to_state + ";\n";
               state_trans_1 += '            }\n';
             }
             else {
-              state_trans_1 += "            state = " + default_trans.to_state + ";\n";
+              state_trans_1 += "            state = " + 'buzz_state_' + default_trans.to_state + ";\n";
 
             }
           }
@@ -183,7 +183,7 @@
       state_trans_1 += state_trans_2;
 
       $.each(state_names, function(i, s) {
-        states_debug += '   case ' + s + ' :  return "' + s + '";\n';
+        states_debug += '   case ' + 'buzz_state_' + s + ' :  return "' + s + '";\n';
       });
       states_debug += states_debug2;
 

@@ -104,7 +104,8 @@ $(function() {
       var s = $('#graph_in>textarea').val();
       var cy_g;
       if (s !== "") {
-        cy_g = load_appState(JSON.parse(s), "test");
+        var o = JSON.parse(s);
+        cy_g = load_appState(o, "test");
         load_cy_graph(cy_g);
       }
     });

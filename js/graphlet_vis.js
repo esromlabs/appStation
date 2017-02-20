@@ -200,9 +200,11 @@
   			name = j;
   			id = "e"+i+j;
   			source = i;
-  			target = o;
-  			new_o = {"data":{"id":id, "name": name, "source": source, "target": target, "edge_type": "flo", "weight": 20}};
-  			demoEdges.push(new_o);
+  			//target = o;
+				$.each(o, function(k, t) {
+  				new_o = {"data":{"id":id, "name": name, "source": source, "target": k, "edge_type": "flo", "weight": 20}};
+  				demoEdges.push(new_o);
+				});
   		});
 		});
 
@@ -216,6 +218,16 @@
 		 	}
 			importviews.push(graph.views[i]);
 		});
+
+		if (importviews) {
+			$.each(importviews[0].nodes, function(i, nv) {
+				$.each(demoNodes, function(j, n) {
+					if (n.data.name === i) {
+						demoNodes[j].data.view = nv;
+					}
+				});
+			});
+		}
 
 		// return in a format suitable for loading into cytoscape.js
 		return {
