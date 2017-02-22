@@ -224,6 +224,12 @@
 				$.each(demoNodes, function(j, n) {
 					if (n.data.name === i) {
 						demoNodes[j].data.view = nv;
+						if(nv.width) {
+							demoNodes[j].data.width = nv.width;
+						}
+						else {
+							demoNodes[j].data.width = 20 + (n.data.name.length * 7);
+						}
 					}
 				});
 			});
