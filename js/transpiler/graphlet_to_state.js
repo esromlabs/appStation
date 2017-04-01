@@ -87,6 +87,10 @@
       var onTick_func_2 = "  }\n}\n\n";
       var onEnterState_func_1 = "// onEnterState processor function\n";
       onEnterState_func_1 += 'void onEnterState_processor(State state, int sig, int sig_data) {\n';
+      onEnterState_func_1 += '#ifdef DEBUG_STATE\n';
+      onEnterState_func_1 += '  Serial.print("EnterState: ");\n';
+      onEnterState_func_1 += '  Serial.println(state_name((int)state));\n';
+      onEnterState_func_1 += '#endif\n';
       onEnterState_func_1 += '  switch (state) {\n';
       var onEnterState_func_2 = "  }\n}\n\n";
       var state_trans_1 = "  // process the state transition\n";
@@ -196,8 +200,8 @@
       signal_debug += signal_debug2;
 
       return preamble + states_enum + state_item_struct + signal_enum + declare_state +
-        preinit_state + onTick_func_1 + onEnterState_func_1 + state_trans_1 +
-        states_debug + signal_debug;
+        states_debug + signal_debug +
+        preinit_state + onTick_func_1 + onEnterState_func_1 + state_trans_1;
     },
     "reverse": function (sm) {
       var out_graph = {nodes:[], edges:[]};
