@@ -102,9 +102,10 @@ $(function() {
     $('#load_from_appState').off("click");
     $('#load_from_appState').on("click", function() {
       var s = $('#graph_in>textarea').val();
-      var cy_g;
+      var cy_g, o;
       if (s !== "") {
-        var o = JSON.parse(s);
+        s = enstring_functions(s);
+        o = JSON.parse(s);
         cy_g = load_appState(o, "test");
         load_cy_graph(cy_g);
       }
@@ -442,6 +443,7 @@ function enstring_functions(in_str) {
   //var out = '';
   //out = in_str.replace(/function\s?\(\s?\)\s?\{(*.)\)}/g, '"'+$1+'"');
   var fn_str = 'function()';
+  var fn_str2 = 'function ()';
   var out = '';
   var curly_brackets = 0;
   var i = fn_index;
@@ -449,14 +451,18 @@ function enstring_functions(in_str) {
   var first_i;
   var char_at;
   var fn_index = in_str.indexOf(fn_str);
+  if (fn_index < 0) {
+    fn_index = in_str.indexOf(fn_str2);
+  }
   while (fn_index > 0) {
     out += in_str.substring(0, fn_index);
     // find the first curly_brackets
+    in_str = in_str.substring(fn_index);
     temp_i = in_str.indexOf('{');
-    if (temp_i > 0 && temp_i > fn_index) {
+    if (temp_i >= 0 && temp_i < in_str.length) {
       first_i = temp_i + 1;
       curly_brackets = 1;
-      while (curly_brackets > 0) {
+      while (curly_brackets > 0 && temp_i < in_str.length) {
         temp_i += 1;
         char_at = in_str.charAt(temp_i);
         if (char_at === '}') {
@@ -466,12 +472,17 @@ function enstring_functions(in_str) {
           curly_brackets += 1;
         }
       }
-      out += in_str.substring(first_i, temp_i);
+      out += '"' + in_str.substring(first_i, temp_i) + '"';
+      in_str = in_str.substring(temp_i+1);
 
     }
-    else { out += 'Parse Error in enstring_functions call...'}
-    in_str = in_str.substring(0, temp_i);
+    else { out += 'Parse Error in enstring_functions call...';
+    }
+//    in_str = in_str.substring(0, temp_i);
     fn_index = in_str.indexOf(fn_str);
+    if (fn_index < 0) {
+      fn_index = in_str.indexOf(fn_str2);
+    }
   }
   out += in_str;
   return out;
