@@ -3,28 +3,31 @@
 
 // Uncomment these if you want to track what your application is doing on
 // the Serial port.
-//#define DEBUG_STATE
-//#define DEBUG_EVENTS
-
+#define DEBUG_STATE
+#define DEBUG_EVENTS
 
 unsigned long rec_a_start = 0;
 unsigned long rec_b_start = 0;
 unsigned long rec_a_stop = 0;
 unsigned long rec_b_stop = 0;
 unsigned long rec_a_duration = 0;
+unsigned long rec_a_duration_base = 0;
 unsigned long rec_b_duration = 0;
-
+unsigned long rec_b_duration_base = 0;
+unsigned long duration_step = 0;
 
 // includes needed output
 #include "output.h"
 
 // timer utility
-unsigned long timer = 0;
-void setTimer(unsigned long timer_milli) {
-  timer = millis() + timer_milli;
+unsigned long timer[3] = {0,0,0};
+
+void setTimer(unsigned long timer_milli, int i) {
+  timer[i] = millis() + timer_milli;
 }
-void cancel_timer(unsigned long timer_milli) {
-  timer = 0;
+
+void cancel_timer(unsigned long timer_milli, int i) {
+  timer[i] = 0;
 }
 
 #include "app_state.h"
@@ -36,19 +39,51 @@ void send_signal(int sig) {
 }
 
 void check_timer() {
-  if (timer != 0 && timer < millis()) {
-    struct Signal_item s;
-    s.sig = times_up;
-    s.data = 0;
-    if (enqueue(times_up, 0, true, false)) {
-      timer = 0;
+  for(int i = 0; i < 3; i++) {
+    if (timer[i] != 0 && timer[i] < millis()) {
+      if (enqueue(times_up, i, true, false)) {
+        timer[i] = 0;
+      }
     }
   }
 }
 
+void inc_value(unsigned long *scaler) {
+  if (*scaler < rec_a_duration_base*2 - 240 - duration_step) {
+    *scaler += duration_step;
+  }
+#ifdef DEBUG_EVENTS
+  Serial.print("inc ");
+  Serial.print(*scaler);
+  Serial.print(" ");
+  Serial.println(rec_a_duration);
+#endif
+}
 
+void dec_value(unsigned long *scaler) {
+  if (*scaler > 240 + duration_step) {
+    *scaler -= duration_step;
+  }
+#ifdef DEBUG_EVENTS
+  Serial.print("dec ");
+  Serial.print(*scaler);
+  Serial.print(" ");
+  Serial.println(duration_step);
+#endif
+}
+
+void set_duration_step() {
+  rec_a_duration_base = rec_a_duration;
+  duration_step = rec_a_duration/64;
+}
 
 void setup() {
+#ifdef DEBUG_STATE | DEBUG_EVENTS
+  Serial.begin(9600); 
+  while (!Serial) {
+    ; // wait for serial port to connect. Needed for native USB
+  }
+#endif
 
   // initialize inputs
   setup_inputs();
@@ -87,6 +122,6 @@ void loop () {
     }
 
   }
-  delay(100);
+  delay(10);
 
 }

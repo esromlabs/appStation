@@ -27,6 +27,12 @@ boolean is_in_queue (struct Signal_item s) {
 boolean enqueue (int s, int data, boolean must_be_consumed, boolean no_duplicates) {
   if (q_size >= Q_LEN) {
     // we have a problem in that the queue is full.
+#ifdef DEBUG_EVENTS
+  Serial.print("Enqueue Error: QUEUE is FULL!!!! ");
+  Serial.print(signal_name(s));
+  Serial.print(" ");
+  Serial.println(data);
+#endif
     return false;
   }
   //if (no_duplicates && is_in_queue(s)) {
@@ -38,6 +44,12 @@ boolean enqueue (int s, int data, boolean must_be_consumed, boolean no_duplicate
   q_enter += -1;
   if (q_enter < 0) {q_enter += Q_LEN;}
   q_size += 1;
+#ifdef DEBUG_EVENTS
+  Serial.print("Enqueue: ");
+  Serial.print(signal_name(s));
+  Serial.print(" ");
+  Serial.println(data);
+#endif
   return true;
 }
 

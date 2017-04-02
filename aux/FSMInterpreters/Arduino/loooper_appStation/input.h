@@ -16,20 +16,22 @@ void setup_inputs() {
   pinMode(BTN_REC_A, INPUT_PULLUP);
 }
 
+const bool no_duplicate = true;
+
 // detect a button (or other input) change and enqueue a message.
 void listen_inputs() {
   if (!digitalRead(BTN_REC_A)) {
     // button is down
     if (btn_rec_a) {
       btn_rec_a = 0;
-      enqueue(RecA_dn, btn_rec_a, false, false);
+      enqueue(RecA_dn, btn_rec_a, false, no_duplicate);
     }
   }
   else {
     // button is up
     if (!btn_rec_a) {
       btn_rec_a = 1;
-      enqueue(RecA_up, btn_rec_a, false, false);
+      enqueue(RecA_up, btn_rec_a, false, no_duplicate);
     }
   }
 
@@ -37,14 +39,14 @@ void listen_inputs() {
     // button is down
     if (btn_mode) {
       btn_mode = 0;
-      enqueue(Mode_dn, btn_mode, false, false);
+      enqueue(Mode_dn, btn_mode, true, no_duplicate);
     }
   }
   else {
     // button is up
     if (!btn_mode) {
       btn_mode = 1;
-      //enqueue(Mode_up, btn_mode, false, false);
+      //enqueue(Mode_up, btn_mode, false, no_duplicate);
     }
   }
 
@@ -52,14 +54,14 @@ void listen_inputs() {
     // Shutter button is down
     if (btn_rec_b) {
       btn_rec_b = 0;
-      //enqueue(RecB_dn, btn_rec_b, false, false);
+      enqueue(RecB_dn, btn_rec_b, false, no_duplicate);
     }
   }
   else {
     // shutter button is up
     if (!btn_rec_b) {
       btn_rec_b = 1;
-      //enqueue(RecB_up, btn_rec_b, false, false);
+      //enqueue(RecB_up, btn_rec_b, false, no_duplicate);
     }
   }
 

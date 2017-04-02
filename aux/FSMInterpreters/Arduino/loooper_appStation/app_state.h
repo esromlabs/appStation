@@ -3,7 +3,7 @@
 // state machine vars and methods...
 
 // State enumerated type declaration
-typedef enum { buzz_state_start, buzz_state_R1_a, buzz_state_R2_a, buzz_state_L1_a, buzz_state_L2_a, buzz_state_inc_a, buzz_state_dec_a, buzz_state_pp_a, buzz_state_L0_a, buzz_state_R0_a } State;
+typedef enum { buzz_state_R0_a, buzz_state_L2_a, buzz_state_R2_a, buzz_state_R1_a, buzz_state_start, buzz_state_playing, buzz_state_L3_a, buzz_state_L10_a, buzz_state_L9_a, buzz_state_L1_a, buzz_state_inc_a, buzz_state_dec_a, buzz_state_L0_a, buzz_state_L4_a, buzz_state_L5_a } State;
 
 // State_item is a struct that is useful in recording any change in state.
 typedef struct State_item {
@@ -11,10 +11,49 @@ typedef struct State_item {
   boolean changed; // indicates that this state has had a transitions applied (essential to self transitions).
 } State_item;
 // Signal enumerated type declaration
-typedef enum { RecA_dn, RecA_up, times_up, RecB_dn, done, Mode_dn } Signal;
+typedef enum { RecA_dn, RecA_up, times_up, Mode_dn, RecB_dn, done } Signal;
 
 // global state variable declaration
 State_item state;
+
+// debug State by name
+#ifdef DEBUG_STATE || DEBUG_EVENTS
+char *state_name(int state) {
+  switch (state) {
+   case buzz_state_R0_a :  return "R0_a";
+   case buzz_state_L2_a :  return "L2_a";
+   case buzz_state_R2_a :  return "R2_a";
+   case buzz_state_R1_a :  return "R1_a";
+   case buzz_state_start :  return "start";
+   case buzz_state_playing :  return "playing";
+   case buzz_state_L3_a :  return "L3_a";
+   case buzz_state_L10_a :  return "L10_a";
+   case buzz_state_L9_a :  return "L9_a";
+   case buzz_state_L1_a :  return "L1_a";
+   case buzz_state_inc_a :  return "inc_a";
+   case buzz_state_dec_a :  return "dec_a";
+   case buzz_state_L0_a :  return "L0_a";
+   case buzz_state_L4_a :  return "L4_a";
+   case buzz_state_L5_a :  return "L5_a";
+  }
+  return "un-named state";
+}
+#endif
+
+// debug Signal by name
+#ifdef DEBUG_STATE || DEBUG_EVENTS
+char *signal_name(int signal) {
+  switch (signal) {
+   case RecA_dn :  return "RecA_dn";
+   case RecA_up :  return "RecA_up";
+   case times_up :  return "times_up";
+   case Mode_dn :  return "Mode_dn";
+   case RecB_dn :  return "RecB_dn";
+   case done :  return "done";
+  }
+  return "un-named signal";
+}
+#endif
 
 // setup pre-init state function
 State_item setup_pre_init_state() {
@@ -33,27 +72,46 @@ void onTick_processor(State state) {
 
 // onEnterState processor function
 void onEnterState_processor(State state, int sig, int sig_data) {
+#ifdef DEBUG_STATE
+  Serial.print("EnterState: ");
+  Serial.println(state_name((int)state));
+#endif
   switch (state) {
-    case buzz_state_R1_a :
-      sound_board(0, board_rec_on); rec_a_start = millis(); setTimer(9500);
+    case buzz_state_R0_a :
+      sound_board(0, board_rec_off); setTimer(60, 0); 
     break;
     case buzz_state_R2_a :
-      rec_a_duration = millis() - rec_a_start; setTimer(rec_a_duration);
+      rec_a_duration = millis() - rec_a_start; set_duration_step(); setTimer(rec_a_duration, 0);
+    break;
+    case buzz_state_R1_a :
+      sound_board(0, board_rec_on); rec_a_start = millis(); setTimer(9500, 0);
+    break;
+    case buzz_state_L3_a :
+      sound_board(0, click_play_off); setTimer(60, 1);
+    break;
+    case buzz_state_L10_a :
+      sound_board(0, click_play_off); setTimer(60, 1);
+    break;
+    case buzz_state_L9_a :
+      sound_board(0, click_play_on); setTimer(60, 1);
     break;
     case buzz_state_L1_a :
-      setTimer(rec_a_duration); sound_board(0, click_play);
+      setTimer(rec_a_duration - 120, 0);
     break;
     case buzz_state_inc_a :
-      rec_a_duration += 100;
+      inc_value(&rec_a_duration);  send_signal(done);
     break;
     case buzz_state_dec_a :
-      rec_a_duration -= 100;
+      dec_value(&rec_a_duration);  send_signal(done);
     break;
     case buzz_state_L0_a :
-      sound_board(0, click_play);
+      sound_board(0, click_play_on); setTimer(60, 1);
     break;
-    case buzz_state_R0_a :
-      sound_board(0, board_rec_off);
+    case buzz_state_L4_a :
+      sound_board(0, click_play_on); setTimer(60, 1);
+    break;
+    case buzz_state_L5_a :
+       sound_board(0, click_play_off); send_signal(done);
     break;
   }
 }
@@ -61,6 +119,55 @@ void onEnterState_processor(State state, int sig, int sig_data) {
   // process the state transition
 State_item state_trans_processor(State_item state, int sig, int sig_data) {
   switch (state.s) {
+      case buzz_state_R0_a :
+        switch (sig) {
+          case times_up :
+                  // evaluate guard expression
+            if(sig_data == 0) {
+                state.s = buzz_state_L4_a;
+                state.changed = true;
+              }
+          break;
+        }
+      break;
+      case buzz_state_L2_a :
+        switch (sig) {
+          case RecA_dn :
+            state.s = buzz_state_R1_a;
+            state.changed = true;
+          break;
+          case Mode_dn :
+            state.s = buzz_state_L4_a;
+            state.changed = true;
+          break;
+        }
+      break;
+      case buzz_state_R2_a :
+        switch (sig) {
+          case times_up :
+                  // evaluate guard expression
+            if(sig_data == 0) {
+                state.s = buzz_state_R0_a;
+                state.changed = true;
+              }
+          break;
+        }
+      break;
+      case buzz_state_R1_a :
+        switch (sig) {
+          case RecA_up :
+            state.s = buzz_state_R2_a;
+            state.changed = true;
+          break;
+          case times_up :
+                  // evaluate guard expression
+            if(sig_data == 0) {
+                state.s = buzz_state_R2_a;
+                state.changed = true;
+              }
+          break;
+        }
+      break;
       case buzz_state_start :
         switch (sig) {
           case RecA_dn :
@@ -73,23 +180,44 @@ State_item state_trans_processor(State_item state, int sig, int sig_data) {
           break;
         }
       break;
-      case buzz_state_R1_a :
+      case buzz_state_playing :
         switch (sig) {
-          case RecA_up :
-            state.s = buzz_state_R2_a;
+        }
+      break;
+      case buzz_state_L3_a :
+        switch (sig) {
+          case Mode_dn :
+            state.s = buzz_state_L2_a;
             state.changed = true;
           break;
           case times_up :
-            state.s = buzz_state_R2_a;
-            state.changed = true;
+                  // evaluate guard expression
+            if(sig_data == 1) {
+                state.s = buzz_state_L4_a;
+                state.changed = true;
+              }
           break;
         }
       break;
-      case buzz_state_R2_a :
+      case buzz_state_L10_a :
         switch (sig) {
           case times_up :
-            state.s = buzz_state_R0_a;
-            state.changed = true;
+                  // evaluate guard expression
+            if(sig_data == 1) {
+                state.s = buzz_state_L2_a;
+                state.changed = true;
+              }
+          break;
+        }
+      break;
+      case buzz_state_L9_a :
+        switch (sig) {
+          case times_up :
+                  // evaluate guard expression
+            if(sig_data == 1) {
+                state.s = buzz_state_L10_a;
+                state.changed = true;
+              }
           break;
         }
       break;
@@ -103,28 +231,15 @@ State_item state_trans_processor(State_item state, int sig, int sig_data) {
             state.s = buzz_state_dec_a;
             state.changed = true;
           break;
-          case Mode_dn :
-            state.s = buzz_state_L2_a;
-            state.changed = true;
-          break;
           case times_up :
-            state.s = buzz_state_L0_a;
-            state.changed = true;
+                  // evaluate guard expression
+            if(sig_data == 0) {
+                state.s = buzz_state_L0_a;
+                state.changed = true;
+              }
           break;
-        }
-      break;
-      case buzz_state_L2_a :
-        switch (sig) {
           case Mode_dn :
-            state.s = buzz_state_L1_a;
-            state.changed = true;
-          break;
-          case RecB_dn :
-            state.s = buzz_state_pp_a;
-            state.changed = true;
-          break;
-          case RecA_dn :
-            state.s = buzz_state_R1_a;
+            state.s = buzz_state_L9_a;
             state.changed = true;
           break;
         }
@@ -145,23 +260,33 @@ State_item state_trans_processor(State_item state, int sig, int sig_data) {
           break;
         }
       break;
-      case buzz_state_pp_a :
+      case buzz_state_L0_a :
         switch (sig) {
-          case done :
+          case times_up :
+                  // evaluate guard expression
+            if(sig_data == 1) {
+                state.s = buzz_state_L3_a;
+                state.changed = true;
+              }
+          break;
+        }
+      break;
+      case buzz_state_L4_a :
+        switch (sig) {
+          case Mode_dn :
             state.s = buzz_state_L2_a;
             state.changed = true;
           break;
-        }
-      break;
-      case buzz_state_L0_a :
-        switch (sig) {
-          case done :
-            state.s = buzz_state_L1_a;
-            state.changed = true;
+          case times_up :
+                  // evaluate guard expression
+            if(sig_data == 1) {
+                state.s = buzz_state_L5_a;
+                state.changed = true;
+              }
           break;
         }
       break;
-      case buzz_state_R0_a :
+      case buzz_state_L5_a :
         switch (sig) {
           case done :
             state.s = buzz_state_L1_a;
@@ -175,39 +300,5 @@ State_item state_trans_processor(State_item state, int sig, int sig_data) {
   }
   return state;
 }
-
-// debug State by name
-#ifdef DEBUG_STATE || DEBUG_EVENTS
-char *state_name(int state) {
-  switch (state) {
-   case buzz_state_start :  return "start";
-   case buzz_state_R1_a :  return "R1_a";
-   case buzz_state_R2_a :  return "R2_a";
-   case buzz_state_L1_a :  return "L1_a";
-   case buzz_state_L2_a :  return "L2_a";
-   case buzz_state_inc_a :  return "inc_a";
-   case buzz_state_dec_a :  return "dec_a";
-   case buzz_state_pp_a :  return "pp_a";
-   case buzz_state_L0_a :  return "L0_a";
-   case buzz_state_R0_a :  return "R0_a";
-  }
-  return "un-named state";
-}
-#endif
-
-// debug Signal by name
-#ifdef DEBUG_STATE || DEBUG_EVENTS
-char *signal_name(int signal) {
-  switch (signal) {
-   case RecA_dn :  return "RecA_dn";
-   case RecA_up :  return "RecA_up";
-   case times_up :  return "times_up";
-   case RecB_dn :  return "RecB_dn";
-   case done :  return "done";
-   case Mode_dn :  return "Mode_dn";
-  }
-  return "un-named signal";
-}
-#endif
 
 
