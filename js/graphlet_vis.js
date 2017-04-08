@@ -197,21 +197,24 @@
 
 	  			$.each(t, function(j, o) {
 							var name = j;
-							var id = "e"+i+j;
+							var id;
 							var source = i;
 							var new_o;
 							if ($.isArray(o)) {
 								$.each(o, function(k, t) {
+									id = "e_"+i+j+k;
 									var new_o = {"data":{"id":id, "name": name, "source": source, "target": k, "edge_type": "flo", "weight": 20}};
 									demoEdges.push(new_o);
 								});
 							}
 							else if ($.type(o) === "string") {
+								id = "e_"+i+j+o;
 								new_o = {"data":{"id":id, "name": name, "source": source, "target": o, "edge_type": "flo", "weight": 20}};
 								demoEdges.push(new_o);
 							}
 							else if ($.type(o) === "object") {
 								$.each(o, function(dest, guard) {
+									var id = "e_"+i+j+dest;
 									if ($.type(guard) === "boolean" && guard === true) {
 										new_o = {"data":{"id":id, "name": name, "source": source, "target": dest, "edge_type": "flo", "weight": 20}};
 										demoEdges.push(new_o);
