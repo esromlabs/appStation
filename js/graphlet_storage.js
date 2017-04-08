@@ -442,12 +442,12 @@ function destring_functions(in_str) {
 function enstring_functions(in_str) {
   //var out = '';
   //out = in_str.replace(/function\s?\(\s?\)\s?\{(*.)\)}/g, '"'+$1+'"');
-  var fn_str = 'function()';
-  var fn_str2 = 'function ()';
+  var fn_str = 'function () { return (';
+  var fn_str2 = 'function() { return (';
   var out = '';
   var curly_brackets = 0;
   var i = fn_index;
-  var temp_i = 0;
+  var temp_i = 0, temp_j = 0;
   var first_i;
   var char_at;
   var fn_index = in_str.indexOf(fn_str);
@@ -459,7 +459,11 @@ function enstring_functions(in_str) {
     // find the first curly_brackets
     in_str = in_str.substring(fn_index);
     temp_i = in_str.indexOf('{');
-    if (temp_i >= 0 && temp_i < in_str.length) {
+    temp_j = in_str.indexOf('}');
+    if (temp_j < temp_i || temp_i < 0) {
+      temp_i = 0;
+    }
+    if (temp_j >= 0 && temp_j < in_str.length) {
       first_i = temp_i + 1;
       curly_brackets = 1;
       while (curly_brackets > 0 && temp_i < in_str.length) {
@@ -472,11 +476,12 @@ function enstring_functions(in_str) {
           curly_brackets += 1;
         }
       }
-      out += '"' + in_str.substring(first_i, temp_i) + '"';
+      out += '"' + in_str.substring(first_i+9, temp_i-2) + '"';
       in_str = in_str.substring(temp_i+1);
 
     }
-    else { out += 'Parse Error in enstring_functions call...';
+    else {
+      out += 'Parse Error in enstring_functions call...';
     }
 //    in_str = in_str.substring(0, temp_i);
     fn_index = in_str.indexOf(fn_str);
