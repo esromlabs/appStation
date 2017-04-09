@@ -443,16 +443,18 @@ function enstring_functions(in_str) {
   //var out = '';
   //out = in_str.replace(/function\s?\(\s?\)\s?\{(*.)\)}/g, '"'+$1+'"');
   var fn_str = 'function () { return (';
-  var fn_str2 = 'function() { return (';
+  var fn_str2 = 'function () {';
   var out = '';
   var curly_brackets = 0;
   var i = fn_index;
   var temp_i = 0, temp_j = 0;
   var first_i;
   var char_at;
+  var consume_extra = 2;
   var fn_index = in_str.indexOf(fn_str);
   if (fn_index < 0) {
     fn_index = in_str.indexOf(fn_str2);
+    consume_extra = 0;
   }
   while (fn_index > 0) {
     out += in_str.substring(0, fn_index);
@@ -476,7 +478,7 @@ function enstring_functions(in_str) {
           curly_brackets += 1;
         }
       }
-      out += '"' + in_str.substring(first_i+9, temp_i-2) + '"';
+      out += '"' + in_str.substring(first_i+9, temp_i - consume_extra) + '"';
       in_str = in_str.substring(temp_i+1);
 
     }
